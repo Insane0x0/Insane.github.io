@@ -1,89 +1,64 @@
-<html><head>
-<title>Random Güçlü Şifre Oluşturucusu</title>
-<meta content="width=device-width, initial-scale=1" name="viewport">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Random Güçlü Şifre Oluşturucusu By iwnl "Yiğit" Insane">
-<meta property="og:description" content="Random Güçlü Şifre Oluşturucusu">
-<meta property="og:url" content="">
-<meta property="og:image" content="[url=https://hizliresim.com/jK3UOn][img]https://i.hizliresim.com/jK3UOn.png[/img][/url]">
-<style>
-@media (max-width: 500px) {
-textarea {
-  height: 100px;
-  line-height:1.25;
-}
-button {
-	background-color:#1e00ff;
-	cursor:pointer;
-	color:#000001;
-	font-family:Arial;
-	font-size:50px;
-	padding:50px 60px;
-	text-decoration:none;
-}
-}
-
-.button0 {
-  font-size:20px;
-  padding:50px 60px;
-}
-</style>
+<!DOCTYPE html>
+<html lang="tr-TR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deneme Şablon</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
-<body background="[url=https://hizliresim.com/k3lPNU][img]https://i.hizliresim.com/k3lPNU.png[/img][/url]">
-<style>
-  textarea {
-    background-color: #000;
-    border: 1px solid #000;
-    color: #1e00ff;
-    padding: 8px;
-    font-family: courier new;
-}
+<body>
+    
+    <header class="header">
+        <h2>HTML Şablon</h2>
+    </header>
 
-body {
-    background-color: #000;
-}
+    <nav class="menu">
+        <ul>
+            <li><a href="#">Anasayfa</a></li>
+            <li><a href="#">Hakkımızda</a></li>
+            <li><a href="#">İletişim</a></li>
+        </ul>
+    </nav>
 
-input {
-    background-color: #030000;
-    color: #1e00ff;
-}
+    <aside class="bar">
+        <h3>Kategoriler</h3>
+        <ul>
+            <li><a href="#">HTML5</a></li>
+            <li><a href="#">PHP</a></li>
+            <li><a href="#">CSS3</a></li>
+        </ul>
 
-button {
-	background-color:#1e00ff;
-	cursor:pointer;
-	color:#000001;
-	font-family:Arial;
-	font-size:17px;
-	padding:7px 8px;
-	text-decoration:none;
-}
-button:active {
-	position:relative;
-	top:1px;
-}
-</style>
-<div>
-<h1 style="font-family: Bebas; color: #fffff0">Random Güçlü Şifre Oluşturucusu By iwnl "Yiğit" Insane</h1>
-<textarea id="a" rows="11" cols="100" readonly="" style="resize: none;">Random Güçlü Şifre Oluşturucusu
-</textarea>
-<p></p>
-<p></p>
-<p style="font-family: Arial; color: #fffff0">Şifreleriniz DataBase'imizde Saklanmamakta ve Tamamen Random Oluşturulmaktadır.
-	Saniyede Oluşturma Sayısı:</p>
-<input type="text" id="speed" value="5">
-<p></p>
-<button id="generate" class="button">
-  Oluştur
-</button>
+        <h3 class="marginleft">Üye Girişi</h3>
+        <form action="admin.php" method="POST" autocomplete="off">
+        <span class="form">Kullanıcı Adı</span> <br> <br>
+        <input type="text" name="kadı" placeholder="Kullanıcı Adınız"> <br> <br>
+        <span class="form">Şifre</span> <br> <br>
+        <input type="password" name="sifre" placeholder="Şifreniz"> <br> <br>
+        <button type="submit">Giriş Yap</button> &ensp;
+        <button type="reset">Temizle</button>
+        </form>
+    </aside>
 
-<button id="stop" class="button">
-  Bitir
-</button>
+    <section class="body">
+        <header>
+            <h2>CodAre</h2>
+        </header>
+        <article class="content">
+            <p>Discord'un En İyi Kod Paylaşım Sunucusu Olan <a href="https://discord.gg/ft4hwPv">CodAre</a> Yetkilileriyle Muhteşem Bir Aile.</p>
+        </article>
+        <footer>12.04.2020</footer>
+    </section>
+    <section class="body">
+        <header>
+            <h2>Şablon Hakkında</h2>
+        </header>
+        <article class="content">
+            <p>Bu Şablonu Sizler İçin Hazırladım Fakat Sadece Bu Ön Yüzü Hazırladım Diğer Linkleri vs. Kendiniz Burayı Koplayıp Editlersiniz. <a href="https://discord.gg/ft4hwPv">CodAre</a></p>
+        </article>
+        <footer>12.04.2020</footer>
+    </section>
 
-<button onclick="stop(); document.getElementById('a').value = '\n\n\nYiğit T**** Tarafından Yapılmıştır.\n\n\n'; document.getElementById('b').value = '';" class="button" id="clear">Resetle</button>
-<textarea style="display: none;" id="b" rows="11" cols="100" readonly=""></textarea>
-	<script src="main.js"></script>
-</div>
-	<p></p>
+    <footer class="footer"><p>&copy; 2020 Tüm Hakları  Saklıdır Yapımcı <a href="https://discord.gg/ft4hwPv">I'm Lewis</a></p></footer>
 
-</body></html>
+</body>
+</html>
