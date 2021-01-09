@@ -1,1 +1,2781 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-9" />
+    <title>asdasfeg &gt;&gt; </title>
+    <script language="JavaScript" src="js/popie_js.asp"></script>
+    <script language="JavaScript" src="js/trims_js.asp"></script>
+    <script language="JavaScript" src="js/TitleAndRating_js.asp"></script>
+    <script language="JavaScript" src="js/store_js.asp"></script>
+    <script type="text/javascript" src="dtree.js"></script>
+    <script>
+    var ajax_istek2;
+    function ajax_getir2(url){
+        if (ajax_istek2){ajax_istek2.abort()}
+        else{ 
+	     var browser_type=navigator.appName
+	    if (browser_type=="Microsoft Internet Explorer")
+		 {ajax_istek2=new ActiveXObject("Microsoft.XMLHTTP")}
+		 else {ajax_istek2 = new XMLHttpRequest(); }}
+        if (ajax_istek2){
+            ajax_istek2.onreadystatechange=ajax_takipet2;
+            ajax_istek2.open('get',url,true);
+            ajax_istek2.send(null);
+        }
+    }
+   
+    function ajax_takipet2(){
+        var cevapXML;
+        var user;
+        var cpu;
+        var fq;
+        var volt;
+        var hide;
+        var top=0;
+        if (ajax_istek2.readyState!=4) 
+        {
+        document.getElementById("uyeol").value='İşlem Gerçekleştiriliyor...';
+        }
+        
+        if (ajax_istek2.readyState==4){
+            if (ajax_istek2.status==200){
+            
+                cevapXML=ajax_istek2.responseXML.documentElement;
+                top=cevapXML.getElementsByTagName('toplam')[0].firstChild.data;
+                if (parseInt(top)==1) 
+                {
+                document.getElementById("uyeol").value='Başarıyla Abone Oldunuz';
+                }
+                else
+                {
+                document.getElementById("uyeol").value='Sorun Oluştu';
+                }
+                if (parseInt(top)==2) 
+                {
+                document.getElementById("uyeol").value='Başarıyla Abonelikten Ayrıldınız';
+                }
+            }
+        }
+    }
 
+
+//    function updateStoreMessage(m, that) {
+//        $.get("/store_updateMessage.asp?messageID=" + m, function (data) {
+//            alert(data);
+//            //$(that).parent().css("background", "#000");
+//            //$(that).html("<img style=\"float: left; display: inline-block; margin: 0 5px 0 0; vertical-align: text-bottom;\" url('https://icon.donanimhaber.com/updatetick.png\" /><font color=\"white\"> GÜNCELLENDİ</font>");
+
+//        });
+//        return false;
+//    }
+
+    function updateStoreMessage(messageId, memberId) {
+
+        let data = "";
+        var href = "/api2/GlobalApi/UpdateStoreMessage?messageId=" + messageId + "&force=true";
+        if (href != undefined) {
+            //ilan açılalı 1 haftayı geçti mi? kontrolü
+            $.ajax({
+                type: 'GET',
+                url: '/api2/GlobalApi/GetCreatedDate?memberId=' + memberId + '&threadId=' + messageId,
+                success: function (response) {
+                    data = response;
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                }
+            }).done(function () {
+                var err = false;
+                if (!data.HasError) {
+                    if (data.Data) {
+                        //sms kodu gönderme SendCodeWithoutCheck
+                        $.getJSON("/api2/GlobalApi/SendCodeWithoutCheck", function (response) {
+                            if (response.HasError) {
+                                alert(response.Message);
+                                if (!response.Data) {
+                                    err = true;
+                                }
+                            }
+                        }).done(function () {
+                            let smsConfirmCode = prompt("Lütfen telefonunuza gelen 4 haneli doğrulama kodunu giriniz.");
+                            if (!err) {
+                                if (smsConfirmCode != null) {
+                                    if (smsConfirmCode.length == 4) {
+                                        //sms kodu doğrulama
+                                        confirmForUpdateMessage(smsConfirmCode, href);
+                                    }
+                                    else {
+                                        alert("Girdiğiniz kod eksik veya fazla karakter içeriyor. Lütfen tekrar deneyin.");
+                                    }
+                                }
+                            }
+
+                        });
+
+                    }
+                    else {
+                        updateMessageDate(href);
+                    }
+                }
+            });
+        }
+
+
+    }
+
+    //ilan tarihi güncellemek için sms onayı
+    function confirmForUpdateMessage(smsConfirmCode, href) {
+        let confirmData = "";
+        $.ajax({
+            type: 'POST',
+            url: '/api2/GlobalApi/ConfirmSmsCode?code=' + smsConfirmCode,
+            success: function (response) {
+                confirmData = response;
+            },
+            error: function (err) {
+
+                alert(err.statusText);
+            }
+        }).done(function () {
+            if (!confirmData.HasError) {
+                updateMessageDate(href);
+            }
+            else {
+
+                alert(confirmData.Message);
+            }
+        });
+    }
+
+    //ilan tarihi güncelle
+    function updateMessageDate(href) {
+        $.getJSON(href, function (response) {
+            if (!response.HasError) {
+                alert("İlanınız güncellendi");
+                self.location.reload();
+            } else {
+                alert(response.Message);
+            }
+        });
+    }
+
+
+    </script>
+    <script language="javascript" src="http://ajax.microsoft.com/ajax/jquery/jquery-1.4.4.min.js"></script>
+
+    <link rel="StyleSheet" href="dtree_css.asp" type="text/css" />
+    <style>
+        /* CSS RESET */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {margin: 0;padding: 0;border: 0;outline: 0;font-size: 100%;vertical-align: baseline;background: transparent;}
+body {font-family: Verdana, Geneva, sans-serif; background-color:#febf55}
+ol, ul {list-style: none;}
+blockquote, q {quotes: none;}
+blockquote:before, blockquote:after,
+q:before, q:after {content: '';content: none;}
+:focus {outline: 0;}
+ins {text-decoration: none;}
+del {text-decoration: line-through;}
+table {border-collapse: collapse;border-spacing: 0;}
+.clear { clear:both;}
+.green { color:#0C0;}
+.red { color:#F00;}
+
+/* LET'S GO */
+
+#header { height:100px; background: url(https://img.donanimhaber.com/img/TopBg.jpg) top repeat-x #f9bb53; position:relative; text-align:center; min-width:800px;}
+div.logo { position:absolute; top:17px; left:15px; }
+div.reklam { width:600px; height:60px; text-align:center; border:1px dashed #CCC; position:absolute; left:10%; top:27px; margin-left:250px}
+
+
+#menu { background-color: #F60; color: #fff; font-size:10px; border:1px solid  #F90; border-width:1px 0; text-align:center; display:block; padding-bottom:2px;}
+#menu a { text-decoration:none; color: #fff; font-size:10px; margin-right:0px; font-weight:bold;}
+
+#content { margin:10px auto; width:95%; min-width:800px; text-align: left;}
+#content-left { float:left; width:69%;}
+#content-right { float:right; width:30%;}
+
+div.rightBox { padding:5px; border:1px dotted #ccc; background:url(https://img.donanimhaber.com/img/BannerBg.jpg) repeat-x top #FFF; margin-bottom:10px;}
+div.rightBox p { height:45px; font-size:14px; font-weight:bold; color:#FFF;}
+div.rightBox dl { font-size:12px;}
+div.rightBox dl dt { margin-bottom:5px;}
+div.rightBox dl dt.nick { font-size:16px; font-weight:bold;}
+div.rightBox dl dt a { text-decoration:none; color: #232323; border-bottom: 1px dotted #666; }
+
+div.rightBox dl.last dt { background: url(https://img.donanimhaber.com/img/RightListing.png) left no-repeat; padding-left:20px; height:16px; font-size:12px;; margin-bottom:10px;}
+div.rightBox dl.last dt a { text-decoration:none; line-height:15px;}
+
+div.leftBox { padding:5px 10px; border:1px solid  #F60; background:url(https://img.donanimhaber.com/img/BannerBgOrange.jpg) repeat-x top #FFF;; margin-bottom:20px;  position:relative;}
+div.leftBox img { max-width:100%;}
+div.leftBox div.statusSOLD, div.leftBox div.statusRESERVED, div.leftBox div.statusAVAILABLE { float: right; display: inline-block; text-align:center; font-weight:bold; font-size:12px; padding: 0 3px; line-height: 16px; border:1px solid #FFF; color:#FFF;}
+div.leftBox div.statusSOLD { background-color: #C00;}
+div.leftBox div.statusRESERVED { background-color: #F60;}
+div.leftBox div.statusAVAILABLE { background-color:#0C3;}
+div.leftBox p { height:45px; font-size:13px; font-weight:bold; color:#FFF; padding-right:80px;}
+div.leftBox span { font-size:12px;}
+
+div.leftBox .info { background: url(https://img.donanimhaber.com/img/warning.png) no-repeat left #FFFFE1; padding-left: 30px; border:1px dashed #ccc; margin-bottom:15px; height:25px; }
+div.leftBox .info b { font-size:11px;}
+
+div.leftBox .date-time { position:absolute; right:5px; top:30px; font-size:11px; background-color: #F30; color:#FFF; padding:2px; border:1px solid #FFF;}
+
+div.leftBox .dashboard { bottom:0; left:0; background-color: #F6F6F6; border-top:1px solid #ccc; width:100%; height:20px; margin-top:10px;}
+div.leftBox .dashboard ul { margin-left:5px;}
+div.leftBox .dashboard ul li { display:inline; margin-right:10px; padding-left:18px;}
+div.leftBox .dashboard ul a { font-size:10px; text-decoration:none; color:#232323; color: #1F1F1F; font-weight:bold; }
+div.leftBox .dashboard ul li.refresh { background: url(https://img.donanimhaber.com/img/refresh.gif) bottom left no-repeat}
+div.leftBox .dashboard ul li.go { background: url(https://img.donanimhaber.com/img/go.png) bottom left no-repeat}
+div.leftBox .dashboard ul li.mail { background:url(https://img.donanimhaber.com/img/mail.gif) bottom left no-repeat;}
+div.leftBox .dashboard ul li.print { background:url(https://img.donanimhaber.com/img/print.gif) bottom left no-repeat;}
+div.leftBox .dashboard ul li.report { background:url(https://img.donanimhaber.com/img/report.gif) left no-repeat; height:16px;}
+
+div.leftBox .dashboard ul li.delete { background: url(https://img.donanimhaber.com/img/delete.gif) bottom left no-repeat}
+
+.button { height:20px; font-size:11px;}
+
+div.mini-kprofili { width:100%; border:1px solid #ccc; font-family:Verdana, Geneva, sans-serif; background:#f1f1f1; margin-bottom:10px;}
+div.mini-kprofili div.header { background: #e4e4e4; font-weight:bold; font-size:12px; padding:5px; border-bottom:1px solid #ccc; color:#000}
+div.mini-kprofili dl { margin:0; padding:0;}
+div.mini-kprofili div.baslik, div.mini-kprofili div.puan { float:left; width:50%;}
+div.mini-kprofili div.baslik dt.header, div.mini-kprofili div.puan dt.header { background: #eee; border-bottom:1px solid #CCC; }
+div.mini-kprofili div.baslik dt, div.mini-kprofili div.puan dt { display:block; padding:5px; font-size:11px; color:#3F3F3F; line-height:16px;}
+
+div.mini-kref { width:100% ; border:1px solid #ccc; font-family:Verdana, Geneva, sans-serif; background:#f1f1f1;margin-bottom:10px;}
+div.mini-kref div { display:block; font-size:12px; padding:5px; color:#3f3f3f;}
+div.mini-kref div span { line-height:17px; margin-right:5px; font-weight:bold;}
+div.mini-kref div dl { margin:0; padding:0;}
+
+div.mini-kref div dl dt a { color: #069; text-decoration: none; }
+div.mini-kref div dl dt a.urun { font-weight:bold;}
+div.mini-kref div dl b { margin-right:5px;}
+
+
+.dukkansayfalama {
+	display:inline-block; font-family:Verdana, Geneva, sans-serif; font-size:13px; font-weight:bold; }
+.dukkansayfalama span {
+	display:inline-block; font-size:12px; float:left; margin-right:10px; height:24px; line-height:24px; }
+.dukkansayfalama a {
+	display:inline-block; float:left; margin-right:5px; height:22px; line-height:22px; padding:0 7px; background:#F1F1F1; border:1px solid #CCC; text-decoration:none; color:#333; }
+.dukkansayfalama .aktif {
+	background:#FFF; }
+
+    </style>
+    <style>
+    .ref-duk {
+	    position:relative; line-height:20px; min-height:20px; display:inline-block; float:right; margin:0 !important; }
+    .ref-duk .list {
+	    position:absolute; top:18px; right:2px; background:#f1f1f1; color:#000; border:1px solid #dedede; padding:5px 10px; visibility:hidden; font-size:11px; }
+    .ref-duk:hover > .list {
+	    visibility:visible; }
+    .ref-duk .list span {
+	    display:block; text-align:center; line-height:16px; padding:1px 0; }
+    /*.ref-duk .list span strong {
+	    color:#000; background:#fff; border-radius:3px; padding:2px 5px; display:block; font-size:13px; margin:0; line-height:20px; }*/
+    .ref-duk .list span a {
+	    text-decoration:none; color:#333; padding:0 5px; }
+    .ref-duk .list span a:hover {
+	    color:#000; text-decoration:underline; }
+    </style>
+    <style type="text/css">
+<!--
+a:link {color:#000000;text-decoration:none}
+input {color : #000000;font: normal 11px Verdana;}
+select {color : #000000;font: normal 11px Verdana;}
+textarea {color : #000000;font: normal 11px Verdana;}
+.quote {border:1px Solid #505050; background-color:#ffffff; width:85%; margin:2px; padding:5px; color:#505050; font: 11px Verdana;}
+pre {color:black; background-color: #efefef;
+font: 12px "Courier New";
+overflow:auto; 
+width:600px; 
+height:300px; 
+line-height: 1.4;
+padding:4px; margin:5px; 
+border:1px solid #a17026;}
+td {font: 11px verdana;}
+.c2 {font: 8pt Verdana;}
+.newpost {font: bold 12px Verdana;}
+.oldpost {font: 12px Verdana;}
+.head {font: bold 14px Verdana;}
+.titlehead {font: bold 10pt Verdana; line-height:180%;}
+.info {font: 11px Verdana;}
+.msg {font: 13px Verdana;}
+.subhead {font: bold 10pt Verdana;}
+.ultrasmall {font: 10px Verdana;}
+.high {background-color : Yellow;font : bold 11px Arial, Helvetica, sans-serif;color : Black;border : 1px solid Black;}
+th {color : gainsboro}
+td.cat {background-color : gainsboro}
+.online {color:green}
+.offline {color:red}
+.forumtitle {font: 20px Verdana;}
+.messagetitle {font: 20px Verdana;}
+a:visited {color:blue;text-decoration:none}
+a:active {color:red;text-decoration:none}
+a:hover {color:red;text-decoration:none}
+.subtitle {font: 10pt Verdana;}
+body {color: #000000; font: 11px Verdana; background-color: #febf55; margin: 0px 4px 0px 4px; padding:0 0 60px 0;}
+a.usermobilver {background:url(http://img.donanimhaber.com/image/forum-mobil-mini-icon.gif) no-repeat left; padding-left:10px;}
+.menuHeader {background-color: #e8e8e8;}
+.onizlemeForum  {position:relative; display:inline-block;}
+.onizlemeForum .onizlemeAyar {position:absolute; right:0; bottom:0; width:20px; height:20px; display:inline-block;}
+.firmamesaj {font-family:Verdana, Geneva, sans-serif; font-size:10px; width:120px;}
+.firmamesaj .baslik {border-top:1px solid #ccc; font-weight:bold; background:#F1F1F1; padding:0 5px; line-height:20px;}
+.line_align a {line-height: 14px; overflow: hidden; display: inline-block;}
+.firmamesaj .yetkili {background:#FFF; padding:5px;}
+.firmamesaj .bilgiler {overflow: hidden; background:#FFF;border-bottom:1px solid #CCC; line-height:14px; padding:5px; width:100px;}
+.firmamesaj .bilgiler .website {display:inline-block; margin-bottom:5px;}
+.firmamesaj .bilgiler .website a {text-decoration:none; color:#333;}
+.firmamesaj .bilgiler .website a:hover {text-decoration:underline; color:#000;}
+.firmamesaj .bilgiler .adres {display:inline-block; margin-bottom:5px;}
+.firmamesaj .bilgiler .telefon {display:inline-block; margin-bottom:5px;}
+.firmamesaj .bilgiler .fax {display:inline-block;}
+.firmamesaj .bilgiler .altbilgi {float:left; font-weight:bold; display:inline-block; width:100px;}
+
+#catfish {position:fixed;bottom:0;background:transparent /*url(/trans.gif)*/ repeat-x left bottom;padding:0;height: 70px; cursor: pointer;margin: 0; width:100%;}
+
+-->
+</style><script src="https://statik.donanimhaber.com/js/jquery-1.9.1.min.js"></script>
+<meta name="apple-itunes-app" content="app-id=732008304">    <link rel="icon" type="image/png" href="/static/forum/img/favicon.png"><link rel="apple-touch-icon-precomposed" href="/static/forum/img/favicon-ios.png"><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KDFDQKX');</script>
+</head>
+
+<body >
+
+    <script language="javascript" type="text/javascript" src="//ad.donanimhaber.com/q.aspx?q1=2&q2=1&q3=&q4=1&q5=0&q6=0&q7=9"></script>
+
+
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDFDQKX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+
+    <!-- yeni reklam sisteminin olduğu sayfalarda olacak sadece -->
+
+    
+    <!-- genel reklam scripti -->
+    <script language="javascript" type="text/javascript" src="//ad.donanimhaber.com/q.aspx?q1=0&q2=0&q3=0&q4=1&q5=1&q6=5059"></script>
+
+    <!-- kategori vs belirten reklam scripti -->
+    <script language="javascript" type="text/javascript" src="//ad.donanimhaber.com/qs.aspx?q1=2&q2=1&q3=0"></script>
+    
+
+<!--script>
+    $(window).load(function () {
+        $("img").each(function () {
+            var image = $(this);
+            if (image.context.naturalWidth == 0 ||
+         image.readyState == 'uninitialized') {
+                $.get("/brokenimages_ajax.asp?p=" + $(image).attr("src"), function (data) { console.log(data); });
+            }
+        });
+    }); 
+</script-->
+<!--[if !IE]> -->
+
+<link href="/header_style.css.asp?v=1" type="text/css" rel="stylesheet" />
+
+<!-- <![endif]-->
+<!--[if IE]>
+<link href="/header_style_ie.css.asp?v=1" type="text/css" rel="stylesheet" />
+<![endif]-->
+
+<script type="text/javascript" src="/header_functions.js?v=7"></script>
+
+    <script>
+        // Create the XHR object.
+        function createCORSRequest(method, url) {
+            var xhr = new XMLHttpRequest();
+            if ("withCredentials" in xhr) {
+                // XHR for Chrome/Firefox/Opera/Safari.
+                xhr.open(method, url, true);
+            } else if (typeof XDomainRequest != "undefined") {
+                // XDomainRequest for IE.
+                xhr = new XDomainRequest();
+                xhr.open(method, url);
+            } else {
+                // CORS not supported.
+                xhr = null;
+            }
+            return xhr;
+        }
+
+        // Make the actual CORS request.
+        function makeCorsRequest(service_url) {
+            // All HTML5 Rocks properties support CORS.
+            var url = service_url;
+
+            var xhr = createCORSRequest('GET', url);
+            if (!xhr) {
+                console.log('CORS not supported');
+                return;
+            }
+
+            // Response handlers.
+            xhr.onload = function () {
+                var text = xhr.responseText;
+                //alert('Response from CORS request to ' + url + ': ' + text);
+
+
+                eval("var arr = " + text);
+
+                if (arr.data[0].Login != "" && arr.data[0].Password != "") {
+                    $.ajax({
+                        type: "POST",
+                        url: '/autologin.asp',
+                        data: "Login=" + encodeURIComponent(arr.data[0].Login) + "&Password=" + encodeURIComponent(arr.data[0].Password),
+                        success: function (data) {
+                            //alert(data);
+                            if (data.indexOf("OK") > -1) {
+                                location.reload();
+                            }
+                        }
+                    });
+                }
+
+            };
+
+            xhr.onerror = function () {
+                console.log('Woops, there was an error making the request.');
+            };
+            xhr.withCredentials = true;
+            xhr.send();
+        }
+
+        makeCorsRequest("https://dhgiris.com/CheckCookies.aspx?site=5");
+    </script>
+
+
+    <div id="zip">
+    <!-- Forum Genel Reklam saydırma alanı -->
+
+    <div style="position:absolute; width:1px; height:1px;">
+        <script language="javascript" type="text/javascript" src="//ad.donanimhaber.com/q.aspx?q1=2&q2=0&q3=3079&q4=1&q5=1"></script>
+
+        <div id="dha_2_0_3079_1_1"></div>
+    </div>
+    <!-- Forum Genel Reklam saydırma alanı -->
+    <center>
+
+
+
+
+    <style>
+/*HEADER START*/
+
+header {
+    width: 100%;
+    float: left;
+    position: relative;
+    min-width: 1200px;
+    font-family: Arial;
+    margin: 0 0 20px 0;
+}
+
+header ul 
+{
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+
+header * 
+{
+    text-align: left;
+}
+    
+    header .ust {
+        width: 100%;
+        float: left;
+        height: 60px;
+        min-width: 1200px;
+        background-color: #f1f1f1;
+        border-bottom: 1px solid #ccc;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 0 2.5%;
+        box-sizing: border-box;
+        z-index: 9999999;
+    }
+        header .ust.golge {
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+    header.serbest .ust {
+        position: relative;
+        top: initial;
+        left: initial;
+        right: initial;
+        bottom: initial;
+    }
+
+
+
+    header .ust .logo {
+        float: left;
+        padding: 8px 10px 2px 0;
+    }
+    
+    header .ust .logo img.text-logo {
+        height: 30px;
+        margin: -50px 0 0 6px;
+        vertical-align: middle;
+    }
+
+        header .ust .logo img {
+            height: 48px;
+            width: auto;
+            display: inline-block;
+        }
+
+    header .ust .sag {
+        float: right;
+        margin: 0;
+    }
+
+        header .ust .sag .ana-menu {
+            float: right;
+            margin: 13px 0 12px 0;
+        }
+
+            header .ust .sag .ana-menu a {
+                position: relative;
+                float: left;
+                margin: 0 10px 0 0;
+                border-radius: 3px;
+                background-color: #dedede;
+                font-family: Arial;
+                font-size: 15px;
+                color: #333;
+                padding: 0 10px;
+                line-height: 32px;
+            }
+
+            header .ust .sag .ana-menu span.acilir {
+                display: inline-block;
+                position: relative;
+                float: left;
+                margin: 0 10px 0 0;
+            }
+
+            header .ust .sag .ana-menu a .sayi {
+                position: absolute;
+                width: 22px;
+                height: 22px;
+                top: -9px;
+                right: -9px;
+                background-image: linear-gradient(to top, #ff4f4f 0%, #f88c4e 100%);
+                background-color: #999;
+                border-radius: 50%;
+                color: #fff;
+                font-size: 12px;
+                font-family: Arial;
+                line-height: 22px;
+                text-align: center;
+            }
+
+            header .ust .sag .ana-menu span.acilir a {
+                margin: 0;
+            }
+
+            header .ust .sag .ana-menu span.acilir ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                z-index: 99;
+            }
+
+            header .ust .sag .ana-menu span.acilir a img {
+                margin: 13px 0 7px 5px;
+                float: right;
+                width: 9px;
+                height: auto;
+            }
+
+            header .ust .sag .ana-menu span.acilir ul span.bg.scroll-kontrol {
+                max-height: 340px;
+                overflow-y: hidden;
+            }
+
+            header .ust .sag .ana-menu span.acilir ul span.bg {
+                padding: 8px 0;
+                float: left;
+                margin: 11px 0 0 0;
+                min-width: 180px;
+                background: #dedede;
+                border: 1px solid #ccc;
+                z-index: 99999999;
+                width: 160px;
+                border-radius: 6px;
+                box-shadow: 3px 4px 7px rgba(0, 0, 0, 0.2);
+            }
+
+            header .ust .sag .ana-menu span.acilir ul li {
+                width: 100%;
+                float: left;
+                margin: 2px 0;
+            }
+
+                header .ust .sag .ana-menu span.acilir ul li a {
+                    line-height: 26px;
+                    width: 100%;
+                    float: left;
+                    padding: 0 11px;
+                    box-sizing: border-box;
+                    background: none;
+                    border-radius: 0;
+                    margin: 0;
+                }
+
+            header .ust .sag .ana-menu span.acilir ul span.bg:before {
+                content: '';
+                position: absolute;
+                top: 2px;
+                left: 14px;
+                width: 0;
+                height: 0;
+                border-bottom: 10px solid #ccc;
+                border-right: 10px solid transparent;
+                border-left: 10px solid transparent;
+            }
+            header .ust .sag .ana-menu span.acilir:hover > ul {
+                display: inline-block;
+            }
+
+            header .ust .sag .ana-menu span.acilir ul span.bg.scroll-kontrol:hover {
+                overflow: auto;
+            }
+
+            header .ust .sag .ana-menu span.acilir ul span.bg.scroll-kontrol::-webkit-scrollbar-track {
+                border-radius: 5px;
+                background-color: transparent;
+            }
+
+            header .ust .sag .ana-menu span.acilir ul span.bg.scroll-kontrol::-webkit-scrollbar {
+                width: 5px;
+                background-color: transparent;
+            }
+
+            header .ust .sag .ana-menu span.acilir ul span.bg.scroll-kontrol::-webkit-scrollbar-thumb {
+                border-radius: 5px;
+                background-color: rgba(51, 51, 51, 0.40);
+            }
+
+            header .ust .sag .ana-menu span.acilir ul li:hover {
+                background-color: #f1f1f1;
+            }
+
+        header .ust .sag .uye {
+            float: right;
+            margin: 10px 0;
+        }
+
+            header .ust .sag .uye .cikis {
+                margin: 5px 0;
+                float: right;
+                color: #fff;
+                font-size: 15px;
+                line-height: 17px;
+                font-family: Arial;
+                border-radius: 3px;
+                background-color: #999999;
+                background-image: linear-gradient(to top, rgba(0, 0, 0, 0.2) 0%, rgba(255, 255, 255, 0.2) 100%);
+                padding: 5px 11px;
+            }
+
+                header .ust .sag .uye .cikis img {
+                    float: right;
+                    margin: 0 0 0 4px;
+                    width: 20px;
+                    height: auto;
+                }
+                header .ust .sag .uye .cikis:hover {
+                    background-image: linear-gradient(to top, rgba(41, 32, 32, 0.52) 0%, rgba(255, 255, 255, 0.2) 100%);
+                }
+            header .ust .sag .uye .avatar {
+                float: right;
+                border-radius: 50%;
+                position: relative;
+                margin: 0 19px 0 0;
+                padding: 0;
+                border: 1px solid #dedede;
+            }
+
+                header .ust .sag .uye .avatar img {
+                    width: 38px;
+                    height: 38px;
+                    float: left;
+                    border-radius: 50%;
+                    
+                }
+
+                header .ust .sag .uye .avatar:after {
+                    content: '';
+                    position: absolute;
+                    right: -9px;
+                    top: 6px;
+                    bottom: 6px;
+                    width: 2px;
+                    background-color: #dedede;
+                    border-radius: 1px;
+                }
+                header .ust .sag .uye .avatar:hover {
+                    border: 1px solid #f60;
+                }
+
+                header .ust .sag .uye .avatar:active {
+                    border: 1px solid #333;
+                }
+
+        header .ust .sag .giris {
+            float: left;
+            padding: 0 11px 0 0;
+            margin: 13px 0;
+            position: relative;
+        }
+
+        header .ust .sag .baglan {
+            font-size: 15px;
+            font-family: Arial;
+            line-height: 31px;
+            color: #999;
+            float: left;
+            display: inline-block;
+            position: relative;
+            padding: 0 5px 0 0;
+            margin: 13px 0 13px 12px;
+        }
+        
+        header .ust .sag .baglan:after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            Bottom: 6px;
+            right: 0;
+            width: 2px;
+            background-color: #dedede;
+            border-radius: 1px;
+        }
+
+
+        header .ust .sag .yeni-kayit {
+            float: left;
+            margin: 13px 0 13px 10px;
+            background-image: linear-gradient(to top, rgba(255, 79, 79, 0.3) 0%, rgba(248, 140, 78, 0.3) 100%);
+            border-radius: 3px;
+            color: #fff;
+            line-height: 20px;
+            font-size: 15px;
+            font-family: Arial;
+            background-color: #a19393;
+        }
+
+.input-style {
+    float: left;
+    outline: none;
+    margin: 0 7px 0 0;
+    background-color: #fff;
+    border: 1px solid #dedede;
+    border-radius: 3px;
+    padding: 6px 12px;
+    line-height: 14px;
+    font-size: 15px;
+    font-family: Arial;
+    color: #333;
+    width: 122px;
+    box-sizing: border-box;
+}
+
+header .ust .sag .giris .input-tut {
+    position: relative;
+    display: inline-block;
+}
+
+header .ust .sag .giris:after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    bottom: 12px;
+    right: 0;
+    width: 2px;
+    background-color: #dedede;
+    border-radius: 1px;
+}
+
+header .ust .sag .giris .girisyap-buton {
+    border-radius: 3px;
+    float: right;
+    color: #fff;
+    padding: 5px 9px;
+    line-height: 21px;
+    font-size: 15px;
+    font-family: Arial;
+    background-image: linear-gradient(to top, #ff4f4f 0%, #f88c4e 100%);
+    cursor: pointer;
+    border: none;
+}
+
+header .ust .sag .giris .input-tut .input-style {
+    padding: 6px 30px 6px 12px;
+}
+
+header .ust .sag .giris .input-tut .unuttum {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 3px;
+    bottom: 3px;
+    width: 25px;
+    height: 25px;
+    background-color: #f1f1f1;
+    border-radius: 3px;
+    text-align: center;
+}
+
+    header .ust .sag .giris .input-tut .unuttum img {
+        display: inline-block;
+        margin: 3px 0;
+        width: 16px;
+        height: auto;
+    }
+
+header .ust .sag .giris .girisyap-buton img {
+    float: right;
+    margin: 1px 0 0 5px;
+    width: 20px;
+    height: auto;
+}
+
+
+header .ust .sag .baglan a {
+    float: right;
+    background-color: #fff;
+    width: 30px;
+    Height: 30px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    margin: 0 5px 0 0;
+    text-align: center;
+}
+
+    header .ust .sag .baglan a:first-child img {
+        margin: 6px 0;
+    }
+
+    header .ust .sag .baglan a img {
+        display: inline-block;
+        margin: 5px 0;
+        width: 20px;
+        height: auto;
+    }
+
+    header .ust .sag .baglan a:last-child {
+        margin: 0 5px 0 12px;
+    }
+
+header .ust .sag .yeni-kayit a {
+    color: #fff;
+    display: inline-block;
+    padding: 5px 12px;
+}
+
+header .ust .sag .yeni-kayit img {
+    float: left;
+    margin: 1px 5px 1px 0;
+    width: 18px;
+    height: auto;
+}
+
+/*HEADER NAV START*/
+
+header .alt {
+    width: 100%;
+    float: left;
+    background-color: #dedede;
+    box-sizing: border-box;
+    margin: 60px 0 0 0;
+}
+
+header.serbest .alt {
+    margin: 0;
+}
+
+header nav.alt {
+    width: 100%;
+    float: left;
+    min-width:1200px;
+    padding: 5px 2.5%;
+    box-sizing: border-box;
+}
+
+    header nav.alt a {
+        float: left;
+        background-color: #d6d6d6;
+        padding: 0 10px;
+        border-radius: 14px;
+        color: #666;
+        font-size: 15px;
+        line-height: 28px;
+        font-family: Arial;
+        margin: 1px 4px 0 0;
+    }
+
+        header nav.alt a.sag {
+            float: right;
+            margin: 0 0 0 4px;
+        }
+
+    header nav.alt .takip {
+        float: right;
+        color: #999;
+        font-size: 15px;
+        line-height: 30px;
+        padding: 0 10px 0 0;
+        position: relative;
+        margin: 0 6px 0 0;
+    }
+
+        header nav.alt .takip a:hover {
+            background-color: #fff;
+        }
+
+    header nav.alt span.acilir {
+        display: inline-block;
+        position: relative;
+        float: left;
+        margin: 0 4px 0 0;
+    }
+
+        header nav.alt span.acilir a {
+            margin: 1px 0 0 0;
+        }
+
+        header nav.alt span.acilir img {
+            float: right;
+            margin: 12px 0 0 6px;
+        }
+
+    header nav.alt a:hover {
+        background-color: #fff;
+    }
+    header nav.alt span.acilir ul li a:hover {
+        background-color: #fff;
+    }
+
+    header nav.alt span.acilir ul span:after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: 16px;
+        width: 0;
+        height: 0;
+        border-bottom: 8px solid #f1f1f1;
+        border-right: 8px solid transparent;
+        border-left: 8px solid transparent;
+    }
+
+    header nav.alt span.acilir ul span:before {
+        content: '';
+        position: absolute;
+        top: -4px;
+        left: 14px;
+        width: 0;
+        height: 0;
+        border-bottom: 10px solid #ccc;
+        border-right: 10px solid transparent;
+        border-left: 10px solid transparent;
+    }
+
+    header nav.alt span.acilir:hover > ul {
+        display: inline-block;
+    }
+
+        header nav.alt span.acilir ul {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 99;
+        }
+
+            header nav.alt span.acilir ul span {
+                float: left;
+                box-shadow: 3px 4px 7px rgba(0, 0, 0, 0.2);
+                border: 1px solid #cccccc;
+                background-color: #f1f1f1;
+                margin: 5px 0 0 0;
+                padding: 10px 0;
+                min-width: 180px;
+                border-radius: 6px;
+            }
+
+            header nav.alt span.acilir ul li {
+                width: 100%;
+                float: left;
+            }
+
+                header nav.alt span.acilir ul li a {
+                    line-height: 30px;
+                    width: 100%;
+                    float: left;
+                    padding: 0 11px;
+                    box-sizing: border-box;
+                    background: none;
+                    border-radius: 0;
+                    margin: 0;
+                }
+
+    header nav.alt .takip {
+        float: right;
+        color: #999;
+        font-size: 15px;
+        line-height: 30px;
+        padding: 0 10px 0 0;
+        position: relative;
+        margin: 0 6px 0 0;
+    }
+
+        header nav.alt .takip a {
+            float: right;
+            width: 30px;
+            height: 30px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            background-color: #d6d6d6;
+            text-align: center;
+            padding: 0;
+            margin: 0 0 0 5px;
+            box-sizing: border-box;
+        }
+
+            header nav.alt .takip a:first-child img {
+                margin: 4px 0;
+            }
+
+            header nav.alt .takip a:nth-child(2) img {
+                margin: 4px 0;
+            }
+
+            header nav.alt .takip a img {
+                display: inline-block;
+                margin: 4px 0;
+                width: 20px;
+                height: auto;
+            }
+
+header .ust .foruma-git {
+    float: left;
+    margin: 12px 0 0 0;
+    position: relative;
+}
+
+    header .ust .foruma-git .ara {
+        position: absolute;
+        cursor: pointer;
+        top: 3px;
+        right: 10px;
+        bottom: 3px;
+        width: 26px;
+        Height: 26px;
+        background-color: #f1f1f1;
+        border-radius: 3px;
+        text-align: center;
+    }
+
+        header .ust .foruma-git .ara:hover {
+            background-color: #dedede;
+        }
+
+        header .ust .foruma-git .ara img {
+            display: inline-block;
+            margin: 3px 0;
+            width: 17px;
+            Height: auto;
+        }
+
+    header .ust .foruma-git .input-style {
+        float: left;
+        width: 140px;
+        height: 32px;
+        box-sizing: border-box;
+        padding: 0 30px 0 11px;
+    }
+    header .ust .foruma-git .liste .tek:hover {
+        background: #fff;
+        color: #000;
+    }
+
+/*HEADER NAV END*/
+
+/*HEADER MANAGER MENU START*/
+
+header .yonetici-menu {
+    width: 100%;
+    float: left;
+    padding: 0 2.5%;
+    box-shadow: 0 1px 0 #e3a34c;
+    background-color: #eaac53;
+    box-sizing: border-box;
+}
+
+    header .yonetici-menu nav {
+        width: 100%;
+        float: left;
+        position: relative;
+        box-sizing: border-box;
+    }
+
+        header .yonetici-menu nav > a:hover {
+            background-color: #fdd499;
+        }
+
+        header .yonetici-menu nav > a {
+            position: relative;
+            float: left;
+            border-radius: 14px;
+            background-color: #edc387;
+            padding: 4px 10px;
+            color: #b27c2f;
+            font-size: 15px;
+            line-height: 20px;
+            margin: 6px 4px 6px 0;
+        }
+
+            header .yonetici-menu nav > a span.sayi {
+                line-height: 12px;
+                border-radius: 11px;
+                background-color: #ddb070;
+                float: right;
+                color: #b27c2f;
+                font-size: 12px;
+                padding: 4px 7px;
+                margin: 0px -6px 0px 4px;
+            }
+
+        header .yonetici-menu nav span.acilir {
+            position: relative;
+            cursor: pointer;
+            float: left;
+            border-radius: 14px;
+            background-color: #edc387;
+            padding: 3px 3px 3px 11px;
+            color: #b27c2f;
+            font-size: 14px;
+            line-height: 20px;
+            margin: 6px 4px 6px 0;
+        }
+            header .yonetici-menu nav span.acilir a{
+                color:#b27c2f;
+            }
+
+                header .yonetici-menu nav span.acilir a:hover {
+                    color: #b27c2f;
+                }
+
+            header .yonetici-menu nav span.acilir:hover {
+                background-color: #fdd499;
+            }
+
+            header .yonetici-menu nav span.acilir ul span:after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 16px;
+                width: 0;
+                height: 0;
+                border-bottom: 8px solid #edc387;
+                border-right: 8px solid transparent;
+                border-left: 8px solid transparent;
+            }
+
+            header .yonetici-menu nav span.acilir ul span:before {
+                content: '';
+                position: absolute;
+                top: -2px;
+                left: 14px;
+                width: 0;
+                height: 0;
+                border-bottom: 10px solid #e3a34c;
+                border-right: 10px solid transparent;
+                border-left: 10px solid transparent;
+            }
+
+            header .yonetici-menu nav span.acilir ul li:hover {
+                background-color: #ead3b1;
+            }
+
+            header .yonetici-menu nav span.acilir.sag ul {
+                left: initial;
+                right: 0;
+            }
+                header .yonetici-menu nav span.acilir.sag ul span:before {
+                    content: '';
+                    position: absolute;
+                    top: -2px;
+                    right: 14px;
+                    left: initial;
+                    width: 0;
+                    height: 0;
+                    border-bottom: 10px solid #e3a34c;
+                    border-right: 10px solid transparent;
+                    border-left: 10px solid transparent;
+                }
+                header .yonetici-menu nav span.acilir.sag ul span:after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    right: 16px;
+                    left: initial;
+                    width: 0;
+                    height: 0;
+                    border-bottom: 8px solid #edc387;
+                    border-right: 8px solid transparent;
+                    border-left: 8px solid transparent;
+                }
+                header .yonetici-menu nav span.acilir:hover > ul {
+                    display: inline-block;
+                }
+
+                header .yonetici-menu nav span.acilir span.sayi {
+                    line-height: 14px;
+                    border-radius: 11px;
+                    background-color: #ddb070;
+                    float: right;
+                    color: #b27c2f;
+                    font-size: 12px;
+                    padding: 4px 7px;
+                    margin: 0 0 0 4px;
+                }
+            header .yonetici-menu nav span.acilir ul li a .sayi {
+                float: initial;
+                display: inline-block;
+            }
+            header .yonetici-menu nav span.acilir img {
+                float: right;
+                margin: 8px 2px 8px 5px;
+                width: 9px;
+                height: auto
+            }
+            header .yonetici-menu nav span.acilir.tek img {
+                margin: 9px 2px 7px 5px;
+            }
+            header .yonetici-menu nav span.acilir.sag img {
+                margin: 10px 2px 7px 5px;
+            }
+            header .yonetici-menu nav span.acilir ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                z-index: 99;
+            }
+
+                header .yonetici-menu nav span.acilir ul span.bg {
+                    float: left;
+                    margin: 7px 0 0 0;
+                    min-width: 180px;
+                    background: #dedede;
+                    box-shadow: 3px 4px 7px rgba(0, 0, 0, 0.2);
+                    border: 1px solid #e3a34c;
+                    background-color: #edc387;
+                    z-index: 99999999;
+                    width: 180px;
+                    padding: 10px 0;
+                    border-radius: 6px;
+                }
+
+                header .yonetici-menu nav span.acilir ul li {
+                    width: 100%;
+                    float: left;
+                }
+
+                    header .yonetici-menu nav span.acilir ul li a {
+                        line-height: 30px;
+                        width: 100%;
+                        float: left;
+                        padding: 0 11px;
+                        box-sizing: border-box;
+                        background: none;
+                        border-radius: 0;
+                        margin: 0;
+                        color: #b27c2f;
+                    }
+
+            header .yonetici-menu nav span.acilir.tek {
+                padding: 3px 10px;
+                line-height: 22px;
+                height: 28px;
+                box-sizing: border-box;
+            }
+
+            header .yonetici-menu nav span.acilir.sag {
+                margin: 6px 0 6px 0;
+                padding: 3px 10px;
+                float: right;
+                line-height: 22px;
+            }
+
+
+
+
+
+/*/*HEADER MANAGER MENU END*/
+
+header .ust .sag .uye .avatar span {
+    display: inline-block;
+    border-radius: 50%;
+    background-color: #fd7356;
+    font-size: 18px;
+    text-align: center;
+    line-height: 40px;
+    width: 38px;
+    height: 38px;
+    color: #fff;
+    padding: 0;
+}
+
+
+
+    header .ust .sag .uye .bildirimler {
+        float: right;
+        color: #fff;
+        padding: 3px 0 0 0;
+        transition: 0.15s all ease;
+        font-size: 15px;
+        line-height: 22px;
+        margin: 0 10px 0 0;
+        font-family: Arial;
+        position: relative;
+        z-index: 9999;
+        box-sizing: border-box;
+    }
+
+        header .ust .sag .uye .bildirimler .bildirim-ac {
+            padding: 5px 8px;
+            display: inline-block;
+            cursor: pointer;
+            border-radius: 3px;
+            float: left;
+            background-color: #999999;
+            background-image: linear-gradient(to top, #ff4f4f 0%, #f88c4e 100%);
+            height: 22px;
+        }
+
+        header .ust .sag .uye .bildirimler img.icon {
+            float: left;
+            width: 18px;
+            height: auto;
+        }
+
+            header .ust .sag .uye .bildirimler.yok {
+            padding: 0;
+            height: 32px;
+            margin: 3px 10px 0 0;
+        }
+
+header.daralt .ust .sag .uye .bildirimler.yok {
+    margin: 0px 10px 0 0;
+}
+
+header .ust .sag .uye .bildirimler.yok .bildirim-ac {
+    background-color: #dedede;
+    background-image: none;
+    padding: 5px 8px;
+}
+
+header .ust .sag .uye .bildirimler.yok img.icon {
+    margin: 0;
+}
+
+header .ust .sag .uye .bildirimler:hover .bildirim-ac {
+    background-image: linear-gradient(to top, #f30 0, #f88c4e 100%);
+}
+
+header .ust .sag .uye .bildirimler.yok:hover .bildirim-ac {
+    background-image: none;
+    background-color: #ccc;
+}
+
+header .ust .sag .uye .bildirimler .count-1 {
+    width: 18px;
+    height: 18px;
+    border-radius: 12px;
+    border: 1px solid #f1f1f1;
+    background-color: #ff0000;
+    font-size: 11px;
+    font-weight: 400;
+    color: #fff;
+    text-align: center;
+    line-height: 18px;
+    position: absolute;
+    right: -8px;
+    top: -9px;
+}
+
+header .ust .sag .uye .bildirimler .count-2 {
+    width: 18px;
+    height: 18px;
+    border-radius: 12px;
+    border: 1px solid #f1f1f1;
+    background-color: #ff6600;
+    font-size: 11px;
+    font-weight: 400;
+    color: #ffffff;
+    text-align: center;
+    line-height: 18px;
+    position: absolute;
+    right: -8px;
+    bottom: -6px;
+}
+
+
+
+header.daralt .ust .sag .uye .bildirimler .count-1 {
+    top: 0;
+    right: -11px;
+}
+
+header.daralt .ust .sag .uye .bildirimler .count-2 {
+    bottom: 0;
+    right: -11px;
+}
+
+
+
+header .ust .foruma-git .liste {
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    background: #dedede;
+    border-bottom: 1px solid #ccc;
+    z-index: 10000;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    box-shadow: 0 5px 5px #999;
+    padding: 2px 0;
+    top: 46px;
+}
+
+header .ust .sag .giris .input-tut .unuttum:hover {
+    background-color: #dedede;
+}
+
+header .ust .sag .baglan a:hover {
+    background-image: linear-gradient(to bottom, #fff 0%, #dedede 100%);
+}
+
+header .ust .sag .baglan a:hover {
+    background-image: linear-gradient(to bottom, #fff 0%, #dedede 100%);
+}
+
+header .ust .sag .ana-menu a:hover {
+    background-color: #d8d8d8;
+}
+
+header .ust .sag .giris .girisyap-buton:hover {
+    background-image: linear-gradient(to top, #f30 0%, #f88c4e 100%);
+}
+
+header .ust .sag .yeni-kayit:hover {
+    background-image: linear-gradient(to top, rgba(167, 7, 7, 0.16) 0%, rgba(248, 140, 78, 0.3) 100%);
+}
+
+    header .ust .foruma-git .liste:before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        left: 14px;
+        width: 0;
+        height: 0;
+        border-bottom: 10px solid #ccc;
+        border-right: 10px solid transparent;
+        border-left: 10px solid transparent;
+    }
+
+    header .ust .foruma-git .liste .tek {
+        display: inline-block;
+        width: 258px;
+        padding: 5px;
+        color: #000;
+        margin: 1px 2px;
+        border-radius: 3px;
+        line-height: 16px;
+        font-size: 12px;
+        border: 1px solid #ccc !important;
+        background: #f1f1f1;
+    }
+
+
+header.daralt .ust {
+    height: 40px;
+}
+
+    header.daralt .ust .logo {
+        padding: 1px 10px 0 0;
+        height: 38px;
+        overflow: hidden;
+    }
+
+    header.daralt .ust .foruma-git {
+        margin: 3px 0;
+    }
+
+        header.daralt .ust .foruma-git .liste {
+            top: 37px;
+        }
+
+    header.daralt .ust .sag .ana-menu {
+        margin: 4px 0;
+    }
+
+    header.daralt .ust .sag .uye {
+        margin: 0 0;
+    }
+
+    header.daralt .ust .sag .ana-menu span.acilir ul {
+        margin: -8px 0 0 0;
+    }
+
+    header.daralt .ust .sag .ana-menu a{line-height: 29px;margin: 1px 10px 0 0;}
+
+    header.daralt .ust .sag .ana-menu a .sayi {
+        top: -4px;
+    }
+
+header.daralt .notification .list {
+    top: 35px;
+}
+
+header.daralt .ust .sag .giris {
+    margin: 3px 0;
+}
+
+header.daralt .ust .sag .baglan {
+    margin: 3px 0 3px 12px;
+}
+
+header.daralt .ust .sag .yeni-kayit {
+    margin: 3px 0 3px 10px;
+}
+
+
+header .bildirimler.notification .bildirim-list{position: absolute;top:100%;right:0;margin:12px 0 0 0;border: 1px solid #ccc;border-radius: 5px;background-color: #fff;width:410px;box-shadow: 3px 4px 7px rgba(0, 1, 0, 0.3);}
+header .bildirimler.notification .bildirim-list.none{display: none;}
+header .bildirimler.notification .bildirim-list.block{display: inline-block;}
+header .bildirimler.notification .bildirim-list .bil-ust{width:100%;float: left;height:40px;padding:12px 13px;box-sizing: border-box;border-bottom:1px solid #ccc;}
+header .bildirimler.notification .bildirim-list .bil-ust .baslik{float: left;line-height: 16px;font-size: 15px;color: #333;font-weight: bold;margin:0 6px 0 0;}
+header .bildirimler.notification .bildirim-list .bil-ust .refresh{display: inline-block;width: 15px;height: 15px;float: left;}
+header .bildirimler.notification .bildirim-list .bil-ust .refresh.spinner{width:38px;Height:38px;margin:-11px 0 0 -9px;cursor: default;}
+
+header .bildirimler.notification .bildirim-list .bil-ust .sag{float: right;color: #ccc;font-size: 12px;margin:-3px 0 0 0;}
+header .bildirimler.notification .bildirim-list .bil-ust .sag a{color: #ff6600;line-height: 22px;display: inline-block;margin: 0 5px 0 0;}
+header .bildirimler.notification .bildirim-list .bil-ust .sag a:last-child{margin:0 0 0 6px;}
+header .bildirimler.notification .bildirim-list .bil-ust .sag a:hover{text-decoration: underline;}
+header .bildirimler.notification .bildirim-list .icerik{width:100%;float: left;max-height: 429px;overflow: auto;}
+/* header .bildirimler.notification .bildirim-list .icerik:hover{overflow: ;} */
+header .bildirimler.notification .bildirim-list .icerik .tek{width:100%;float: left;padding:10px;box-sizing: border-box;border-bottom: 1px solid #ccc;}
+header .bildirimler.notification .bildirim-list .icerik .tek:last-child{border:none;}
+header .bildirimler.notification .bildirim-list .icerik .tek:hover{background-color: #f8f8f8;}
+header .bildirimler.notification .bildirim-list .icerik .tek.yeni{background-color: #fff3e1;}
+header .bildirimler.notification .bildirim-list .icerik .tek.yeni:hover{background-color: #f5e9d7;}
+header .bildirimler.notification .bildirim-list .icerik .tek .baslik{width:100%;float:left;font-size: 15px;color:#666;line-height: 18px;}
+header .bildirimler.notification .bildirim-list .icerik .tek .baslik span{color: #ff6600;font-weight: bold;}
+header .bildirimler.notification .bildirim-list .icerik .tek .baslik b{color: #333;}
+header .bildirimler.notification .bildirim-list .icerik .tek .detay{width:100%;float: left;color: #999;font-size: 12px;margin:7px 0 0 0;}
+header .bildirimler.notification .bildirim-list .icerik .tek .detay img{float: left;margin:2px 5px 0 0;height:15px;width:auto;}
+header .bildirimler.notification .bildirim-list .bil-alt{width:100%;float: left;border-radius: 0 0 5px 5px;font-weight: bold;text-align: center;color: #ff6600;font-size: 12px;padding:8px 5px;box-sizing: border-box;border-top:1px solid #ccc;}
+header .bildirimler.notification .bildirim-list .bil-alt:hover{opacity: 0.8;}
+header .bildirimler.notification .bildirim-list .bil-alt img{display: inline-block;vertical-align: middle;margin:-2px 0 0 0;}
+header .bildirimler.notification .bildirim-list .bil-alt span{font-weight: normal;color:#ccc;}
+
+header .bildirimler.notification .bildirim-list:after{  content: ''; position: absolute; top: -8px; right: 10px; left: initial; width: 0; height: 0; border-bottom: 8px solid #fff; border-right: 8px solid transparent; border-left: 8px solid transparent;}
+header .bildirimler.notification .bildirim-list:before{  content: ''; position: absolute; top: -10px; right: 8px;left: initial; width: 0; height: 0; border-bottom: 10px solid #ccc; border-right: 10px solid transparent; border-left: 10px solid transparent;}
+
+
+header .bildirimler.notification .bildirim-list .icerik::-webkit-scrollbar-track{border-radius: 5px;background-color: transparent;}
+header .bildirimler.notification .bildirim-list .icerik::-webkit-scrollbar{width: 5px;	background-color: transparent;}
+header .bildirimler.notification .bildirim-list .icerik::-webkit-scrollbar-thumb{border-radius: 5px;	background-color: rgba(51, 51, 51, 0.40);}
+
+header.daralt .bildirimler.notification .bildirim-list{top:calc(100% - 12px);}
+
+/*HEADER END*/
+
+
+
+
+
+
+
+.notification .counter {
+    color: #fff;
+    display: inline-block;
+    line-height: 20px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: #f00;
+    font-size: 14px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+    .notification .counter.yok {
+        background-color: #f1f1f1 !important;
+    }
+
+    .notification .counter:hover {
+        background: #f60;
+    }
+
+    .notification .counter img {
+        float: left;
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        margin: 3px 4px 0 0;
+    }
+
+.notification .list {
+    width: 240px;
+    display: inline-block;
+    position: absolute;
+    top: 45px;
+    right: -14px;
+    background: #fff;
+    z-index: 99999;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 0 10px #ccc;
+    /*visibility: hidden;*/
+}
+
+    .notification .list:after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-width: 10px;
+        border-style: solid;
+        border-color: transparent transparent #fff transparent;
+        top: -20px;
+        right: 20px;
+    }
+
+    .notification .list .title {
+        width: 220px;
+        background: #fff;
+        line-height: 24px;
+        height: 24px;
+        padding: 2px 10px;
+        display: inline-block;
+        font-size: 12px;
+        border-bottom: 1px solid #ccc; /*box-shadow:0 0 10px #999; border-radius:5px;*/
+    }
+
+
+        .notification .list .title .icon {
+            margin: 2px -5px 0 5px;
+            background: #f1f1f1;
+            padding: 5px 7px;
+            border-radius: 3px;
+            height: 10px;
+            display: inline-block;
+        }
+
+        .notification .list .title .icon {
+            margin: 2px -5px 0 5px;
+            background: #f1f1f1;
+            padding: 5px 7px;
+            border-radius: 3px;
+            height: 10px;
+            display: inline-block;
+        }
+
+            .notification .list .title .icon:hover {
+                background: #f60;
+                color: #fff;
+            }
+
+            .notification .list .title .icon span {
+                float: left;
+                display: inline-block;
+                height: 10px;
+                line-height: 10px;
+                margin: 0 4px 0 0;
+            }
+
+            .notification .list .title .icon img {
+                float: right;
+                display: inline-block;
+            }
+
+        .notification .list .title .link {
+            float: right;
+            font-size: 10px;
+        }
+
+    .notification .list .tek {
+        width: 240px;
+        display: inline-block;
+        position: relative;
+    }
+
+        .notification .list .tek .isaret {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 8px;
+            background: #fff;
+            border: 2px solid #999;
+            visibility: hidden;
+        }
+
+        .notification .list .tek:hover > .isaret {
+            visibility: visible;
+        }
+
+        .notification .list .tek .isaret.aktif {
+            background: #f00;
+            border: 2px solid #f00;
+        }
+
+    .notification .list .bildirim {
+        width: 220px;
+        line-height: 14px;
+        padding: 5px 10px;
+        border-bottom: 1px solid #ccc;
+        display: inline-block;
+        font-size: 11px;
+        background: #fff;
+        color: #333;
+        position: relative;
+    }
+
+        .notification .list .bildirim.yeni {
+            background: #fff4e3;
+        }
+
+        .notification .list .bildirim.arkadas {
+            background: #ffe7f6;
+        }
+
+        .notification .list .bildirim.oncelikli {
+            background: #f0f4ff;
+        }
+
+        .notification .list .bildirim:hover {
+            background: #f1f1f1;
+            color: #f30;
+        }
+
+        .notification .list .bildirim span {
+            display: block;
+            font-size: 10px;
+            color: #999;
+        }
+
+            .notification .list .bildirim span img {
+                float: left;
+                display: inline-block;
+                width: 14px;
+                height: 14px;
+                margin: 0 3px 0 0;
+            }
+
+    .notification .list .lejant {
+        width: 240px;
+        line-height: 16px;
+        display: inline-block;
+        font-size: 11px;
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        background: #fff;
+    }
+
+        .notification .list .lejant a {
+            display: inline-block;
+            float: left;
+            padding: 5px 3px;
+            text-align: center;
+        }
+
+            .notification .list .lejant a.aktif {
+                font-weight: bold;
+            }
+
+        .notification .list .lejant .oncelikli {
+            background: #f0f4ff;
+            border-right: 1px solid #ccc;
+            width: 73px;
+        }
+
+        .notification .list .lejant .arkadas {
+            background: #ffe7f6;
+            border-right: 1px solid #ccc;
+            width: 73px;
+        }
+
+        .notification .list .lejant .yeni {
+            background: #fff4e3;
+            width: 74px;
+        }
+
+    .notification .list .tumu {
+        width: 220px;
+        line-height: 24px;
+        height: 24px;
+        padding: 2px 10px;
+        display: inline-block;
+        font-size: 11px;
+        text-align: left;
+        font-weight: bold;
+    }
+
+        .notification .list .tumu.slim {
+            width: 220px;
+            line-height: 20px;
+            height: 20px;
+            padding: 1px 10px 3px 10px;
+            display: inline-block;
+            font-size: 10px;
+            text-align: right;
+            background: #fff;
+            font-weight: normal;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .notification .list .tumu:hover {
+            background: #f1f1f1;
+        }
+
+        .notification .list .tumu span {
+            float: right;
+            display: inline-block;
+            font-size: 10px;
+            font-weight: bold;
+            color: #000;
+        }
+
+
+
+
+
+
+
+    </style>
+
+
+    <script src="/static/forum/js/header.v13.js"></script>
+    <script src="/static/forum/js/handlebars.js"></script>
+
+    
+
+
+    <header >
+        
+            <div class="ust">
+
+                <a href="https://forum.donanimhaber.com/" class="logo" title="DonanımHaber Forum"><img src="/static/forum/img/dh-forum-logo.png" alt="DonanımHaber Forum"><img class="text-logo" src="/static/forum/img/dh-forum.png" alt="DonanımHaber Forum"></a>
+                <div class="sag">
+                    <div class="giris">
+			<a class="girisyap-buton" href="/login?returnUrl=http%3A%2F%2Fforum%2Edonanimhaber%2Ecom%2Fstore%2Easp%3Fmem%3D1248734%26cat%3D2560%26m%3D113615167">Üye Girişi <img src="/static/forum/img/giris-ikon.png"></a>
+                    </div>
+                    <div class="baglan">
+                        Bağlan
+                        <a href="https://dhgiris.com/GP.aspx?referer=http%3A%2F%2Fforum%2Edonanimhaber%2Ecom%2Fstore%2Easp%3Fmem%3D1248734%26cat%3D2560%26m%3D113615167" title="Google+ ile Bağlan" target="_blank"><img src="/static/forum/img/googleplus.png" alt="Google+ ile Bağlan"></a>
+                        <a href="https://dhgiris.com/FB.aspx?referer=http%3A%2F%2Fforum%2Edonanimhaber%2Ecom%2Fstore%2Easp%3Fmem%3D1248734%26cat%3D2560%26m%3D113615167" title="Facebook ile Bağlan" target="_blank"><img src="/static/forum/img/facebook2.png" alt="Facebook ile Bağlan"></a>
+                    </div>
+                    <div class="yeni-kayit">
+                        <a href="https://dhgiris.com/Register.aspx?referer=http%3A%2F%2Fforum%2Edonanimhaber%2Ecom%2Fstore%2Easp%3Fmem%3D1248734%26cat%3D2560%26m%3D113615167"><img src="/static/forum/img/new-user2.png"> Yeni Kayıt</a>
+                    </div>
+                </div>
+
+
+            </div>
+
+        
+
+
+
+
+        <nav class="alt">
+            
+                <a href="https://forum.donanimhaber.com/" title="Forum Anasayfa">Anasayfa</a>
+                <a href="https://www.donanimhaber.com/" title="DH Portal">Portal</a>
+		<a href="https://indirimkodu.donanimhaber.com/" target="_blank" class="discount-button"><img style="vertical-align: middle;margin-top: -3px;width: 15px;height: 17px;" src="/Static/forum/img/indirim-icon.png">&nbsp;İndirim Kodu</a>
+                <a href="/rules.asp">Forum Kuralları</a>
+                <a href="/faq.asp">Sık Sorulan Sorular</a>
+                <a href="/staff_members.asp">Moderatörler</a>
+
+                <a href="/support.asp" class="sag">Forum Destek</a>
+                <a href="https://www.donanimhaber.com/reklam/" target="_blank" class="sag">Reklam Ver</a>
+                <a href="/about.asp" class="sag">İletişim</a>
+            
+        </nav>
+
+
+        
+
+    </header>
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="header-new">
+<style>
+
+/* DH Search */
+
+.dhsearch {
+    min-width: 700px;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    height: 40px;
+    margin: 10px 0 20px;
+}
+.dhsearch .search {
+    display: inline-block;
+    padding: 0 370px 0 44px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 100%;
+    height: 40px;
+    border-radius: 20px;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, .15);
+    background-color: #fff;
+    border: none;
+    font-size: 15px;
+    letter-spacing: .14px;
+    font-family: Arial;
+    background-image: url(/static/forum/img/fav-search.png);
+    background-repeat: no-repeat;
+    background-position: left;
+    background-position-x: 10px;
+}
+.dhsearch .search:focus {
+    outline: 0;
+}
+.dhsearch .search-icon {
+    height: 20px;
+    width: 20px;
+    z-index: 888;
+    display: inline-block;
+    position: relative;
+    left: 12px;
+    top: 32px;
+}
+.dhsearch .dropdown {
+    cursor: pointer;
+    z-index: 888;
+    display: inline-block;
+    background: 0 0;
+    position: absolute;
+    padding-right: 20px;
+    width: 201px;
+    height: 30px;
+    top: -4px;
+    right: 136px;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+}
+.dhsearch .dropdown .dropdown-menu {
+    display: none;
+    height: auto;
+    width: 220px;
+    background-color: #f1f1f1;
+    margin-top: 3px;
+    border-radius: 10px;
+    border: 1px solid #dedede;
+    -webkit-box-shadow: 1px 3px 10px 0 rgba(50, 50, 50, .46);
+    -moz-box-shadow: 1px 3px 10px 0 rgba(50, 50, 50, .46);
+    box-shadow: 1px 3px 10px 0 rgba(50, 50, 50, .46);
+}
+.dhsearch .dropdown .dropdown-menu .list {
+    color: #999;
+    font-size: 14px;
+    letter-spacing: .14px;
+}
+.dhsearch .dropdown .dropdown-menu .list li {
+    padding: 7px 10px 7px 20px;
+    border-bottom: 1px solid #e6e6e6;
+    border-radius: 5px;
+}
+.dhsearch .dropdown .dropdown-menu .list li:last-child {
+    border: none;
+}
+.dhsearch .dropdown .dropdown-menu .list li:hover {
+    background-color: #e0e0e0;
+}
+.dhsearch .dropdown .dropdown-menu .list .selected {
+    background-color: #e0e0e0;
+    cursor: default;
+}
+.dhsearch .dropdown .title {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    padding: 0 20px;
+    color: #999;
+    background-color: #f1f1f1;
+    width: 180px;
+    height: 30px;
+    top: -4px;
+    right: 136px;
+    line-height: 30px;
+    border-radius: 20px;
+    border: 1px solid #dedede;
+    font-family: Arial;
+    font-size: 15px;
+    letter-spacing: .14px;
+}
+.dhsearch .dropdown .title:hover {
+    background-color: #e9e8e8;
+}
+.dhsearch .dropdown .title .dropdown-icon {
+    height: 10px;
+    width: 16px;
+    position: absolute;
+    right: 5px;
+    top: 11px;
+}
+.dhsearch .search-button {
+    cursor: pointer;
+    display: inline-block;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    width: 126px;
+    height: 30px;
+    border-radius: 20px;
+    background-image: linear-gradient(135deg, #f9893f 0, #e95450 100%);
+    text-align: center;
+    line-height: 30px;
+    font-weight: 700;
+    font-family: Arial;
+    letter-spacing: .14px;
+    font-size: 15px;
+    color: #fff;
+}
+.dhsearch .search-button:hover {
+    background-image: linear-gradient(135deg, #e4772f 0, #d84e4a 100%);
+}
+.dhsearch .search-button .search-icon {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+}
+.dhsearch .search-button span {
+    padding: 0 0 0 10px;
+}
+.dhsearch .info {
+    width: 100%;
+    text-align: center;
+    opacity: .4;
+    color: #000;
+    font-size: 12px;
+    letter-spacing: .15px;
+    margin: 0;
+    padding: 5px 0 0;
+}
+.dhsearch .info a {
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: underline;
+}
+/* DH Search */
+
+
+/* ELASTIC SEARCH */
+
+/* Elastic Search */
+
+.elastic-search { z-index: 9999; position: absolute; top: 60px; left: 0; right: 0; bottom: 0; height: 100%; width: 100%; background-color: rgba(0, 0, 0, 0.51); }
+.elastic-search .body { position: absolute; right: 0; top: 0; height: 100%; background-color: #fff; width: 580px; overflow: auto; }
+.elastic-search .body .searchBody { width: 100%; display: inline-block; }
+.elastic-search .body .searchBody .header { background-color: #fff; padding: 15px 15px 0px 15px; }
+.elastic-search .body .searchBody .header .title { color: #000000; font-size: 20px; font-weight: 700; letter-spacing: -0.53px; } 
+.elastic-search .body .searchBody .header .searchInput { position: relative; width: 100%; }
+.elastic-search .body .searchBody .header .searchInput b { position: relative; bottom: 10px; font-size: 13px; }
+.elastic-search .body .searchBody .header .searchInput { font-weight: 700; padding: 20px 0 10px 0; }
+.elastic-search .body .searchBody .header .searchInput input { padding: 0 45px 0 20px; margin: 15px 0 20px 0; width: 100%; box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.15); border-radius: 20px; border: 2px solid #ee8f00; background-color: #ffffff; height: 40px; font-size: 15px; letter-spacing: 0.14px; }
+.elastic-search .body .searchBody .header .searchInput input:focus { outline-width: 0; }
+.elastic-search .body .searchBody .header .searchInput .submit { position: absolute; top: 52px; right: 1px; width: 38px; height: 38px; border-radius: 20px; background-image: linear-gradient(135deg, #f9893f 0%, #e95450 100%); }
+.elastic-search .body .searchBody .header .searchInput .submit:before { content: url('../img/search-white.png'); position: absolute; top: 8px; left: 10px; }
+.elastic-search .body .searchBody .header .info { width: 100%; color: #000000; font-size: 13px; font-weight: 400; letter-spacing: -0.35px; }
+.elastic-search .body .searchBody .header .info b { font-weight: 700; }
+.elastic-search .body .searchBody .header .custom-filters { padding: 15px 0 0 0; width: 100%; }
+.elastic-search .body .searchBody .header .custom-filters .custom-filter { display: inline-block; }
+.elastic-search .body .searchBody .header .custom-filters .title { display: inline-block; vertical-align: 8px; color: #000000; font-size: 13px; font-weight: 700; letter-spacing: -0.35px; }
+.elastic-search .body .searchBody .header .custom-filters .custom-filterToggle { line-height: 25px; float: right; color: #999999; font-size: 13px; font-weight: 400; letter-spacing: -0.35px;}
+.elastic-search .body .searchBody .header .custom-filters .custom-filterToggle:before { content: url('../img/icon-arrows-down.png'); position: relative; right: 5px; top: 1px; }
+
+
+@media (max-width:550px) {
+.elastic-search .body .custom-filter.list { display: inline-block; width: 100%; margin: 0; }
+.elastic-search .body .custom-filter.list div { float: unset; border: 1px solid #000 !important; border-radius: 5px; margin-left: 0 !important; margin-bottom: 3px; text-align: center; }
+}
+.elastic-search .body .custom-filter_txt { display: inline; margin-left:5px; }
+.elastic-search .body .custom-filter_txt:after { content:' '; display:block; clear: both; margin-bottom: 5px;             }
+.elastic-search .body .custom-filter div { float: left; display: block; position: relative; border-top: 1px solid #dedede; border-bottom: 1px solid #dedede; border-right: 1px solid #dedede; padding: 0; margin: 0; }
+.elastic-search .body .custom-filter div:first-child { margin-left: 5px;  border-top-left-radius: 4px; border-bottom-left-radius: 4px; border-right: 1px solid #dedede; border-left: 1px solid #dedede; }
+.elastic-search .body .custom-filter div:last-child { border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+.elastic-search .body .custom-filter input { position: absolute; opacity: 0; width: 0; height: 0; } 
+.elastic-search .body .custom-filter>div>label { cursor: pointer; display: block; padding: 5px; padding-left: 8px; padding-right: 8px; margin: 0; font-size: 13px; font-weight: 400; letter-spacing: -0.35px; }
+.elastic-search .body .custom-filter input:checked~label { box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.3); border-radius: 2px 0 0 2px; background-color: #ee8f00; color: #fff; }
+.float-right { float: right; }
+
+
+.elastic-search .body .searchBody .footer  { padding: 0 0 80px 15px; display: inline-block; width: calc(100% - 30px ); }
+.elastic-search .body .searchBody .footer .title { color: #000000; vertical-align: 8px; font-size: 13px; font-weight: 700; letter-spacing: -0.35px; display: inline-block; margin-bottom: 5px; }
+.elastic-search .body .searchBody .footer .item { width: 100%; display: inline-block; margin-bottom: 20px; }
+.elastic-search .body .searchBody .footer .pagination { display: inline-block; }
+.elastic-search .body .searchBody .footer .pagination .page, .pagination-next {float: left; border: 1px solid #ddd; border-right: 0; padding: 10px; margin-top: 20px; margin-bottom: 5px; }
+.elastic-search .body .searchBody .footer .pagination-next::after{ content:'Sonraki' }
+@media (min-width: 320px) and (max-width: 480px) {
+	.elastic-search .body .searchBody .footer .pagination-next::after{ content:'>' } }
+	.elastic-search .body .searchBody .footer .pagination a { color:#000; height: 10px; line-height: 10px; }
+	.elastic-search .body .searchBody .footer .pagination .page.active { box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.3); border-radius: 2px 0 0 2px; background-color: #ee8f00; color: #fff; }
+	.elastic-search .body .searchBody .footer .pagination a:first-child { border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
+.elastic-search .body .searchBody .footer .pagination a:last-child { border-top-right-radius: 4px; border-bottom-right-radius: 4px; border-right: 1px solid #dedede; }
+.elastic-search .body .searchBody .footer .pagination-next { border: 1px solid #dedede; border-radius: 4px; margin-left: 10px; color:#000; }
+.elastic-search .body .searchBody .footer .sortcustom-filter { display: inline-block; }
+
+.elastic-search .body .searchBody .footer .smart-dropdown { cursor: pointer; }
+.elastic-search .body .searchBody .footer .smart-dropdown:after { content: url('../img/icon-down.png'); position: absolute; right: 8px; top: 0px; height: 22px; border-left: 1px solid #ddd; padding: 5px 0 0 8px; }
+.elastic-search .body .searchBody .footer .smart-dropdown.open:after { content: url('../img/icon-up.png'); }
+.elastic-search .body .searchBody .footer .smart-dropdown .title { width: 130px; text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border-radius: 3px; background-color: #fff; color: #000000; letter-spacing: -0.35px; padding: 5px 30px 5px 10px; font-size: 13px; border: 1px solid #dedede; cursor: pointer; font-weight: 400; }
+.elastic-search .body .searchBody .footer .smart-dropdown .content .searchbox { width: 100%; position: relative; top: 0; }
+.elastic-search .body .searchBody .footer .smart-dropdown .content .searchbox  input {  border-radius: 3px; padding: 0 10px 0 10px; box-sizing: border-box; box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.15); border: 1px solid #dedede; height: 30px; font-size: 14px; width: 100%;  }
+.elastic-search .body .searchBody .footer .smart-dropdown .content .searchbox  input:focus { outline: 2px solid #ddd; border-radius: 3px; }
+.elastic-search .body .searchBody .footer .smart-dropdown { position: relative; display: inline-block; }
+.elastic-search .body .searchBody .footer .smart-dropdown .content { margin-bottom: 20px; max-height: 200px; border-radius: 3px; display: none; position: absolute; padding: 10px; background-color: #fff; width: 230px; overflow: hidden; border: 1px solid #ddd; z-index: 1; }
+.elastic-search .body .searchBody .footer .smart-dropdown .content .items { overflow: auto; overflow-x: hidden; display: inline-block; width: 100%; max-height: 180px; }
+.elastic-search .body .searchBody .footer .smart-dropdown .content a { color: black; padding: 12px 16px; text-decoration: none; display: block; }
+.elastic-search .body .searchBody .footer .smart-dropdown a:hover {background-color: #ddd; }
+.elastic-search .body .searchBody .footer .smart-dropdown .content.show {display: block; }
+
+.elastic-search .body .searchBody .result { background-color: #fff; padding: 0 15px 20px 15px;  display: inline-block; width: calc(100% - 30px); }
+.elastic-search .body .searchBody .result .item { position: relative; margin-top: 15px; border-radius: 3px; background-color: #ffffff; min-height: 110px; }
+.elastic-search .body .searchBody .result .item .row-7 { display: inline-block; width: 100%; }
+.elastic-search .body .searchBody .result .item .row-7 .title { width: 80%; padding: 15px 40px 20px 0; color: #1200e3; font-size: 16px; font-weight: 400; letter-spacing: -0.43px; }
+.elastic-search .body .searchBody .result .item .row-7 .title b { font-weight: 700; }
+.elastic-search .body .searchBody .result .item .row-7 .title a { color: #1200e3; }
+.elastic-search .body .searchBody .result .item .row-7 .description { margin-top: -15px; color: #333; font-size: 13px; font-weight: 400; letter-spacing: -0.35px; }
+.elastic-search .body .searchBody .result .item .row-7 .description b { color: #000000; font-weight: 700; }
+.elastic-search .body .searchBody .result .item .row-7 .description .other ul { padding: 20px 0 0 15px; color: #1200e3; }
+.elastic-search .body .searchBody .result .item .row-7 .description .other ul li  { position: relative; padding: 10px 0 0 0;  }
+.elastic-search .body .searchBody .result .item .row-7 .description .other ul li a { color: #1200e3; display: inline-block; width: 80%; }
+.elastic-search .body .searchBody .result .item .row-7 .description .other ul li .date { width: auto; float: right; line-height: 0px; }
+.elastic-search .body .searchBody .result .item .row-7 .description .other ul li .viewMore { border: 1px solid #eee; color: #000; border-radius: 5px; line-height: 45px; margin: 0 !important; text-align: center; width: 150px !important;  }
+.elastic-search .body .searchBody .result .item .row-7 .description .other ul li .viewMore:hover { background-color: #eee; }
+.elastic-search .body .searchBody .result .item .category { position: relative; bottom: 15px; left: -15px; padding: 0 0 7px 15px; color: #2d652a; font-size: 13px; letter-spacing: -0.35px; font-weight: 400; }
+.elastic-search .body .searchBody .result .item .row-3 { position: relative; float: left; padding: 0 10px 0 10px; }
+.elastic-search .body .searchBody .result .item .row-3 img { width: 100px; height: 100px; float: right; padding: 10px 10px 0 0; }
+.elastic-search .body .searchBody .result .item .date { color: #333; font-size: 12px; font-weight: 400; letter-spacing: -0.32px; position: absolute; top: 18px; right: 10px; }
+.elastic-search .body .searchBody .search-info { display: block; padding: 0 0 10px 0; }
+.elastic-search .body .searchBody .search-info a { color: #0000FF; font-weight: 600; }
+
+.elastic-search .smartSearch { display: block; width: calc(100% - 50px); z-index: 9989; position: absolute; top: 140px; left: 25px; height: 305px; max-height: 305px; overflow: hidden; box-shadow: 5px 4px 10px rgba(0, 0, 0, 0.3); border-radius: 5px; border: 1px solid #d2d1cc; background-color: #ffffff; }
+.elastic-search .smartSearch .search-title { position: relative; padding: 10px 0 10px 15px; width: 100%; display: inline-block; border-bottom: 1px solid #dedede; color: #999999; font-size: 11px; letter-spacing: 0.1px; }
+.elastic-search .smartSearch .search-body { background-color:  #fff; overflow-x: hidden; overflow-y: scroll; max-height: 265px; }
+.elastic-search .smartSearch .search-body .search-list { margin: 0; padding: 10px 0 10px 0; }
+.elastic-search .smartSearch .search-body .search-list .user { cursor: pointer; line-height: 30px; font-size: 15px; }
+.elastic-search .smartSearch .search-body .search-list .user a { display: block; padding: 5px 20px 5px 20px; color: #000; }
+.elastic-search .smartSearch .search-body .search-list .user:hover { background-color: #F1F1F1; }
+.elastic-search .smartSearch .search-body .search-list .user .info { color: #999999; font-size: 10px; letter-spacing: 0.1px; position: relative; top: 13px; left: -110px; }
+.elastic-search .smartSearch .search-body .search-list li { display: inline-block; width: 100%; list-style-type: none;  white-space: nowrap; }
+.elastic-search .smartSearch .search-body .search-list li .profile { border: 1px solid #979797; background-color: #d8d8d8; float: left; height: 30px; margin-right: 10px; display: inline-block; width: 30px; border-radius: 100%; background-color: #fff }
+.elastic-search .smartSearch .search-body .search-list li:first-child { margin-top: 0; }
+.elastic-search .smartSearch .search-body .search-list li .title { text-overflow: ellipsis; overflow: hidden; display: inline-block; width: calc(100% - 50px); color: #000000; font-size: 15px; letter-spacing: 0.1px;}
+.elastic-search .smartSearch .search-body .search-list li .place { color: #999999; font-size: 10px; letter-spacing: 0.1px; }
+.elastic-search .smartSearch .search-body .search-list li .where { float: right; color: #999999; font-size: 11px; letter-spacing: 0.07px; }
+.elastic-search .smartSearch ::-webkit-scrollbar { width: 5px; }
+.elastic-search .smartSearch  ::-webkit-scrollbar-thumb { background-color: #cccccc; border-radius: 10px; }
+.tip {  z-index: 99999; width: 0px; height: 0px; position: absolute; background: transparent; border: 10px solid #fff; }
+.tip-up { top: 124px; left: 55px; border-right-color: transparent; border-left-color: transparent; border-top-color: transparent; }
+
+
+.search-bg { width: 100%; height: 100%; position: fixed; z-index: 99999; }
+.search-bg iframe { position: fixed; top: 0; height: 100%; width: 580px; right: 0; z-index: 999999; border: 0; }
+.bg-close {  width: 100%; height: 100%; position: fixed; z-index: 9999; background-color: #000; opacity: 0.5; }
+
+body.no-scroll { overflow: hidden; }
+
+
+/* ELASTIC SEARCH */
+
+</style>
+
+
+
+
+
+
+
+
+
+</div><!--header-new-->
+
+
+
+<!--  Begin Content  -->
+<div id="content">
+
+	<!--  Begin Content Left  -->
+    <div id="content-left">
+
+    <script>
+    function displayFav(m)
+    {
+        document.getElementById("favField_"+m).style.display = "inline-block";
+	    
+        return false;
+    }
+    function deleteFav(m)
+    {
+        $.get("/favorites_drop.asp?m="+m);
+        
+        document.getElementById("favLink_"+m).innerHTML = "Favorilerime Ekle";
+        document.getElementById("favLink_"+m).setAttribute("onclick", "return displayFav("+m+");");
+        document.getElementById("li_"+m).setAttribute("style", "background:url(https://icon.donanimhaber.com/dukkan-favekle.png) left no-repeat; padding:0 0 0 20px;");
+
+        return false;
+    }
+    function addFav(m)
+    {
+        var favNote = document.getElementById("favNote_"+m).value;
+        $.get("/favorites_add.asp?m="+m+"&favNote=" + favNote);
+	    
+        document.getElementById("favField_"+m).style.display = "none";
+        
+        document.getElementById("favLink_"+m).innerHTML = "Favorilerimden Kaldır";
+        document.getElementById("favLink_"+m).setAttribute("onclick", "return deleteFav("+m+");");
+        document.getElementById("li_"+m).setAttribute("style", "background:url(https://icon.donanimhaber.com/dukkan-favcikar.png) left no-repeat; padding:0 0 0 20px;");
+	    
+        return false;
+    }
+    </script>
+    
+                <div class="leftBox">
+                    <div class="statusSOLD">SATILDI</div>
+                    
+                    <p><a name="45264049"></a>  [ SATILDI ] Shure SRH-750DJ fiyat düştü 230&#8378;</p>
+
+<div class="dashboard" style="margin:-10px 0 10px 0; display:inline-block; padding:0 0 5px 0; height:inherit !important; background:none; border:none; border-bottom:1px solid #dedede;">
+    <ul>
+        <li style="line-height:18px; padding-left:18px; background:url(https://icon.donanimhaber.com/dukkan-yorum.png) left 2px no-repeat;"><a>2  Yorum</a></li>
+        <li style="line-height:18px; padding-left:18px; background:url(https://icon.donanimhaber.com/dukkan-goruntulenme.png) left 3px no-repeat;"><a>239 Görüntülenme</a></li>
+        <li style="float:right; background:#7B470B; padding:0 !important; border-radius:3px; line-height:18px; margin-right:0;"><a style="color:#fff; padding:2px 5px !important;">5 Nisan 2016; 13:12:45</a></li>
+        <br />
+        
+            <li class="report"><a href="#" onClick="return powin('/report.asp?messageID=113615167')">Şikayet Et</a></li>
+        
+        <li class="go"><a rel="nofollow" href="/fb.asp?m=113615167" target="_blank">Forum İlanı</a></li>
+        
+        <div id="favField_113615167" style="display: none;">
+            <input type="text" id="favNote_113615167" />
+            <input type="button" onclick="addFav(113615167)" value="Gönder" />
+	    </div>
+        <li class="ref-duk" style="background:url(https://icon.donanimhaber.com/dukkan-refs.gif) left 3px no-repeat; padding:0 0 0 20px;"><a href="#">Referanslar (?)</a>
+            <div class="list">
+                <!--<span><strong>Satın Alanlar</strong></span>-->
+                
+                    <span><a target="_blank" href="/showProfile.asp?memID=1766448">lordyyy</a></span>
+                
+            </div>
+       </li>
+    </ul>
+</div>
+
+                    
+                    
+                    <span>
+                         <table width="100%">
+                             25.02.2015 tarihinde D&R dan satın alınmıştır. 13 ay garantisi bulunmaktadır. Ürünü fazla kullanmadım. Kutu içeriği tamdır. Herhangi bir kusuru yoktur. Detayları konuşuruz. <br>      <br>    290 &gt;&gt;&gt;&gt;&gt;&gt;230 <br>     <a target="_blank" href="https://store.donanimhaber.com/6a/05/fd/6a05fdd49830e49d088171e8d505154d.jpg"><img border="0" src="https://cache.donanimhaber.com/ImageThumbnail2.aspx?path=https://store.donanimhaber.com/6a/05/fd/6a05fdd49830e49d088171e8d505154d.jpg&t=5&size=1&bound=0&border=0&resolution=0&overrides=240" /></a> <br>     <a target="_blank" href="https://store.donanimhaber.com/48/e1/cf/48e1cf47e50a2df4425c5bbe5f93c14f.jpg"><img border="0" src="https://cache.donanimhaber.com/ImageThumbnail2.aspx?path=https://store.donanimhaber.com/48/e1/cf/48e1cf47e50a2df4425c5bbe5f93c14f.jpg&t=5&size=1&bound=0&border=0&resolution=0&overrides=240" /></a> <br>     <a target="_blank" href="https://store.donanimhaber.com/a9/1f/96/a91f964e818191907aac89457a331762.jpg"><img border="0" src="https://cache.donanimhaber.com/ImageThumbnail2.aspx?path=https://store.donanimhaber.com/a9/1f/96/a91f964e818191907aac89457a331762.jpg&t=5&size=1&bound=0&border=0&resolution=0&overrides=240" /></a> <br>     <a target="_blank" href="https://store.donanimhaber.com/68/ea/77/68ea77e8b04f142040f9e303be712eda.jpg"><img border="0" src="https://cache.donanimhaber.com/ImageThumbnail2.aspx?path=https://store.donanimhaber.com/68/ea/77/68ea77e8b04f142040f9e303be712eda.jpg&t=5&size=1&bound=0&border=0&resolution=0&overrides=240" /></a> <br>      <br>      <br>     Pazarlık payı vardır. <br>      <br>      Ödeme : Ziraat veya Enpara <br>      Kargo   : Önce havale sonra kargo şeklinde.<hr><font size="2"><b><font color="green">Sistem Notu : Bu ilan her türlü yoruma açıktır.</font></b></font><hr><font size="2"><b><font color="green">Sistem Notu : Bu ilan her türlü yoruma açıktır.</font></b></font>   
+                         </table>
+                    </span>
+                    
+                    <div class="dashboard">
+                        <ul>
+
+                            <li class="mail"><a href="javascript:void(fwdwin('/fwd.asp?messageID=113615167'))" title="İlet">Arkadaşına Gönder</a></li>
+                            <li class="print"><a href="//forum.donanimhaber.com/m_113615167/printable.htm" target="_blank" >Yazdırılabilir</a></li>
+
+                        </ul>
+                    </div>
+                </div>        
+                <br />
+                <br />
+            
+            <div class="dukkansayfalama">
+	            <span>Sayfa</span>
+
+            
+            
+                    <a class="aktif">1</a>
+                
+                    <a href="/store.asp?mem=1248734&p=2">2</a>
+                
+            </div>
+        
+        
+    </div>
+    <!--  end Content Left  -->
+    
+    
+    <!--  Begin Content Right  -->
+    <div id="content-right">
+    	<div class="rightBox">
+        	<p>Dükkan Sahibi Hakkında</p>
+            <dl>
+            	<dt class="nick"><a href="/showProfile.asp?memid=1248734" target=_blank>asdasfeg</a></dt>
+                <dt><script>titleAndStar(18,0,0,false,"","")</script></dt>
+                <dt><div><img src="https://img.donanimhaber.com/upfiles/1248734/1204f41632334905cbeb88d110bbe1834.jpg" border="0" align="absmiddle" /></div></dt>
+                <dt>&nbsp;</dt>
+                
+                <dt>
+                                
+                    
+                    <br />
+                    <input type="button" name="referanslarim" id="referanslarim" value="Referansları" onclick="window.location.href='/memberReferences.asp?memID=1248734';" />
+                
+                </dt>
+
+                <dt>&nbsp;</dt>
+                
+            </dl>
+        </div>
+        
+        <div class="rightBox">
+        	<p>Dükkanına Eklediği Son Ürünler</p>
+        	
+            <dl class="last">
+                
+                        <dt>
+                            <a href="/store.asp?mem=1248734&cat=2567&m=126491007"> [ SATILDI ] Logitech G430 Headset</a>
+                        </dt>
+                    
+                        <dt>
+                            <a href="/store.asp?mem=1248734&cat=2413&m=118637591">  [ SATILDI ] TOTAL WAR WARHAMMER STEAM - KEY</a>
+                        </dt>
+                    
+                        <dt>
+                            <a href="/store.asp?mem=1248734&cat=2560&m=113615167">  [ SATILDI ] Shure SRH-750DJ fiyat düştü 230&#8378;</a>
+                        </dt>
+                    
+                        <dt>
+                            <a href="/store.asp?mem=1248734&cat=841&m=114969592">  [ SATILDI ] N11.com  111&#8378; ve 77&#8378; kuponlar satılıktır.</a>
+                        </dt>
+                    
+                        <dt>
+                            <a href="/store.asp?mem=1248734&cat=269&m=113755159">  [ SATILDI ] ASUS RT-N12+ WIRELESS-N300 Router</a>
+                        </dt>
+                    
+            </dl>
+            
+        </div>
+        <!--div class="rightBox">
+        <dl>
+        <dt>
+        	<p>Dükkan Kategorileri</p>
+        	<span>Hepsini <a href="javascript: d.openAll();">aç</a>/<a href="javascript: d.closeAll();">kapat</a></span>
+            <hr />
+            <a onclick='javascript: d.closeAll();' href="store.asp?mem=9484">Tüm Kategoriler<br></a>
+            	<script type="text/javascript"-->
+		<!--
+		d = new dTree('d');
+		
+		d.add(16,-1,' Kategoriler&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+        d.add(260,16,'Bilgisayar ve Parçaları[5]','store.asp?mem=9484&cat=260','Bilgisayar ve Parçaları');
+d.add(275,16,'Konsollar ve aksesuarları[1]','store.asp?mem=9484&cat=275','Konsollar ve aksesuarları');
+d.add(263,260,'Anakart/Cpu[3]','store.asp?mem=9484&cat=263','Anakart/Cpu');
+d.add(269,260,'ADSL Modem/ Ağ ile ilgili olan[2]','store.asp?mem=9484&cat=269','ADSL Modem/ Ağ ile ilgili olanlar');
+d.add(546,275,'Konsollar[1]','store.asp?mem=9484&cat=546','Konsollar');
+
+
+
+		document.write(d);
+
+		//-->
+	    <!--/script>
+	    </dt>
+	    </dl>
+        </div-->
+        <div class="rightBox">
+        <dl>
+        <dt>
+    	    <p>Referansları</p>
+    	    <a name="referans"></a>
+            <div class="mini-kprofili">
+	            <div class="header">» Kullanıcı Profili</div>
+	            <div class="baslik">
+    	            <dl>
+        	            <dt class="header">Kriter</dt>
+                        <dt>Genel</dt>
+                        <dt>Kargo</dt>
+                        <dt>Satıcı</dt>
+                    </dl>
+                </div>
+                <div class="puan">
+    	            <dl>
+        	            <dt class="header">Puan</dt>
+                        <dt>
+                        <img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;
+                        </dt>
+                        <dt>
+                        <img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;
+                        </dt>
+                        <dt>
+                        <img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;
+                        </dt>
+                    </dl>
+                </div>
+                <br clear="all" />
+            </div>
+            <div id="referansAlan">
+                
+                <div class="mini-kref">
+	                <div>
+	                    <span>Genel Puan:</span>
+                        <img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;
+	                </div>
+                    <div>
+    	                <dl>
+        	                <dt><b>Ürün:</b> <a class="urun" rel="nofollow" href="fb.asp?m=113383103"> [ SATILDI ] ASUS ZenFone 2 Kılıflar</a></dt>
+                            <dt><b>Alıcı:</b> <a href="showProfile.asp?memID=331303">sncsnc</a></dt>
+                            <dt><b>Tarih:</b> 8 Ocak 2016; 13:35:38</dt>
+                        </dl>
+                    </div>
+                    <div>
+    	                <dl><b>Yorum:</b>Çok ilgili ve hızlı, hem ürünle hemde fiyatta yardımları çok iyiydi.Gönül rahatlığı ile alışveriş yapabilirsiniz. Kendisine tekrardan teşekkür ederim.</dl>
+                    </div>
+                </div>
+                
+                <div class="mini-kref">
+	                <div>
+	                    <span>Genel Puan:</span>
+                        <img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;
+	                </div>
+                    <div>
+    	                <dl>
+        	                <dt><b>Ürün:</b> <a class="urun" rel="nofollow" href="fb.asp?m=113614741"> [ SATILDI ] Ipod TOUCH 5G 16 GB</a></dt>
+                            <dt><b>Alıcı:</b> <a href="showProfile.asp?memID=626967">miralay__</a></dt>
+                            <dt><b>Tarih:</b> 18 Ocak 2016; 21:06:12</dt>
+                        </dl>
+                    </div>
+                    <div>
+    	                <dl><b>Yorum:</b>İLGİLİ VE ALAKALI BİR ARKADAŞ ALIŞVERİŞTEN MEMNUN KALDIM,TEŞEKKÜRLER..</dl>
+                    </div>
+                </div>
+                
+                <div class="mini-kref">
+	                <div>
+	                    <span>Genel Puan:</span>
+                        <img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;
+	                </div>
+                    <div>
+    	                <dl>
+        	                <dt><b>Ürün:</b> <a class="urun" rel="nofollow" href="fb.asp?m=113755159"> [ SATILDI ] ASUS RT-N12+ WIRELESS-N300 Router</a></dt>
+                            <dt><b>Alıcı:</b> <a href="showProfile.asp?memID=575776">bhazer</a></dt>
+                            <dt><b>Tarih:</b> 28 Ocak 2016; 13:17:55</dt>
+                        </dl>
+                    </div>
+                    <div>
+    	                <dl><b>Yorum:</b>sanalpazar üzerinden işlem yaptık. ilgili bi satıcı. yeni alışverişlerde görüşmek üzere</dl>
+                    </div>
+                </div>
+                
+                <div class="mini-kref">
+	                <div>
+	                    <span>Genel Puan:</span>
+                        <img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;
+	                </div>
+                    <div>
+    	                <dl>
+        	                <dt><b>Ürün:</b> <a class="urun" rel="nofollow" href="fb.asp?m=113615167"> [ SATILDI ] Shure SRH-750DJ fiyat düştü 230&#8378;</a></dt>
+                            <dt><b>Alıcı:</b> <a href="showProfile.asp?memID=1766448">lordyyy</a></dt>
+                            <dt><b>Tarih:</b> 5 Nisan 2016; 13:15:25</dt>
+                        </dl>
+                    </div>
+                    <div>
+    	                <dl><b>Yorum:</b>Arkadaşa güvenip alışveriş etmekte tereddüt etmeyin. Alış verişinizden çok başka konularda bile yardımcı olmayı esirgemeyen güzel insan. Teşekkür ederim</dl>
+                    </div>
+                </div>
+                
+                <div class="mini-kref">
+	                <div>
+	                    <span>Genel Puan:</span>
+                        <img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;<img border='0' src='https://img.donanimhaber.com/img/yildiz.png'>&nbsp;
+	                </div>
+                    <div>
+    	                <dl>
+        	                <dt><b>Ürün:</b> <a class="urun" rel="nofollow" href="fb.asp?m=126491007">[ SATILDI ] Logitech G430 Headset</a></dt>
+                            <dt><b>Alıcı:</b> <a href="showProfile.asp?memID=1475727">yusufani</a></dt>
+                            <dt><b>Tarih:</b> 5 Haziran 2017; 21:14:40</dt>
+                        </dl>
+                    </div>
+                    <div>
+    	                <dl><b>Yorum:</b>SATICI SON DERECE GÜVENİLİR VE ALIŞVERİŞ ANININ HEPSİNİ FOTOLAYARAK BENİ BİLGİLENDİRDİ.TAVSİYE EDERİM</dl>
+                    </div>
+                </div>
+                
+                <div class="mini-kref">
+                    <div>
+                        <span>
+                        Sayfa 
+                        
+                                <p style="display: inline; font-weight: bold; color: #ff0000;">[1]</p>&nbsp;
+                            
+                        </span>
+                    </div>
+                    <div>
+                        <span>
+                        < <a href="memberReferences.asp?memID=1248734">Tümünü gör</a> >
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+        </dt>
+        </dl>
+        </div>
+    </div>
+    <!--  end Content Right  -->
+
+    
+    
+    <div class="clear"></div>
+</div>
+<!--  end Content  -->
+
+
+
+
+    <script src="//c.supert.ag/p/00031e/supertag.js"></script>
+
+    
+        <script type="text/javascript" src="//app.winwords.adhood.com/165418,970,90"></script>
+    
+	<!--
+<table width="95%"  border="0" align="center" cellpadding="0" cellspacing="0" ID="Table5">
+  <tr>
+    <td align="right"><a href="http://www.vt.com.tr" target="_blank"><img border="0" src="https://img.donanimhaber.com/ads/vargonen/vt_mini_banner.jpg" /></a></td>
+  </tr>
+</table>
+--><br />
+<a name="bottom">&nbsp;</a>
+<div style="width: 95%;">
+
+<!--div class="forumSponsor">
+<style>
+.forumSponsor {
+	float:right;
+	height:172px;
+}
+.forumSponsor img {
+	border:none;
+}
+.hpist {
+	float:left;
+	margin-right:10px;
+	height:70px;
+	margin-top:16px;
+}
+.hp-sh {
+	float:right;
+	width:225px;
+}
+</style>
+    
+    <span style="display: inline-block;">
+	    <div class="hpist">
+    	    
+        </div>
+        
+        
+        <div class="hp-sh">
+    	    <a href="http://www.incehesap.com/" target="_blank"><img src="https://icon.donanimhaber.com/donanim_sponsoru.png" border="0" width="225" height="50" /></a>
+        </div>
+    </span>
+
+
+</div-->
+
+<br />
+	<br>
+	
+	<br />
+
+
+
+
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+      m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-121509-3', 'auto');
+        
+        ga('send', 'pageview');
+
+    </script>
+
+    
+    
+<!-- (C)2000-2014 Gemius SA - gemiusAudience / donanimhaber.com / Forum -->
+<script type="text/javascript">
+<!--    //--><![CDATA[//><!--
+    var pp_gemius_identifier = 'AfWadqcYPxV79VKmXHFjz8ch3ygYeiM0TcDSxJp8ALH.W7';
+    // lines below shouldn't be edited
+    function gemius_pending(i) { window[i] = window[i] || function () { var x = window[i + '_pdata'] = window[i + '_pdata'] || []; x[x.length] = arguments; }; };
+    gemius_pending('gemius_hit'); gemius_pending('gemius_event'); gemius_pending('pp_gemius_hit'); gemius_pending('pp_gemius_event');
+    (function (d, t) {
+        try {
+            var gt = d.createElement(t), s = d.getElementsByTagName(t)[0], l = 'http' + ((location.protocol == 'https:') ? 's' : ''); gt.setAttribute('async', 'async');
+            gt.setAttribute('defer', 'defer'); gt.src = l + '://gatr.hit.gemius.pl/xgemius.js'; s.parentNode.insertBefore(gt, s);
+        } catch (e) { }
+    })(document, 'script');
+    //--><!]]>
+</script>
+
+
+<center>
+
+
+<script language="javascript" src="//ad.donanimhaber.com/q.aspx?q1=2&q2=0&q3=3704&q4=5&q5=0"></script>
+
+<div id="dha_2_0_3704_5_0"></div>
+
+</center>
+<br />
+
+
+<center>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+	<td align="center" class="info">Forum Software powered by ASP Playground <b>Advanced Edition</b> 2.3<br>
+	  Copyright &copy; 2000 - 2006 <a href="http://www.aspplayground.net" target="_blank">ASPPlayground.NET</a></td>
+  </tr>
+</table>
+<br>
+
+<p style="color: #000000;">Bu sayfanın <a style="color: #000000;" rel="nofollow" href="
+http://mobile.donanimhaber.com/"><u>mobil sürümü</u></a> / <a style="color: #000000;" rel="nofollow" href="
+http://tablet.donanimhaber.com/"><u>tablet sürümü</u></a> / <a style="color: #000000;" rel="nofollow" href="
+http://mini.donanimhaber.com/"><u>mini sürümü</u></a>.</p>
+<br />
+
+<font color="ffffff">
+
+BR2
+    <br /><span id="lblPageGenerationTime">0.219</span></font><br>
+    
+    </div><!-- close 'div#zip' -->
+</center>
+
+
+
+<script type="text/javascript">
+
+    (function () {
+
+        var a = document.getElementsByTagName('script')[0],
+
+b = document.createElement('script');
+
+        b.async = !0; b.src = '//cdn.dimml.io/dimml.js';
+
+        a.parentNode.insertBefore(b, a);
+
+    })(); 
+
+</script>
+
+
+
+<script>
+    function smtakip_closeOnce(that) {
+        $(that).parent().parent().remove();
+
+        return false;
+    }
+
+    function smtakip_closeByCookie(that) {
+        $(that).parent().parent().remove();
+
+        setCookie("noSmTakip", 1, 7);
+
+        return false;
+    }
+
+    function smtakip_reklam_closeByCookie(that) {
+        $(that).parent().parent().remove();
+
+        setCookie("noSmTakipReklam", 1, 1);
+
+        return false;
+    }
+
+    function smtakip_closeForever(that) {
+        $(that).parent().parent().remove();
+
+        setCookie("noSmTakip", 1, 700);
+
+        return false;
+    }
+</script>
+
+<script>
+    $.get("/smtakip.asp", function (data) {
+        $("#smTakipArea").html(data);
+    });
+</script>
+<div id="smTakipArea">
+</div>
+
+
+<div id="catfish" style="display:none">
+</div><!-- catfish -->
+
+
+</body></html>
